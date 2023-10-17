@@ -2,17 +2,40 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   AppTheme._();
-  static ThemeData get light => _theme(Brightness.light);
-  static ThemeData get dark => _theme(Brightness.dark);
+  static ThemeData get theme => _theme();
 
-  static ThemeData _theme(Brightness brightness) => ThemeData(
-        brightness: brightness,
-        colorScheme: brightness == Brightness.light
-            ? const ColorScheme.light().copyWith(
-                primary: Colors.lightBlue,
-              )
-            : const ColorScheme.dark().copyWith(
-                primary: Colors.blue,
-              ),
+  static ThemeData _theme() => ThemeData(
+        brightness: Brightness.light,
+        colorScheme: const ColorScheme.light().copyWith(
+          tertiaryContainer: Colors.deepOrange,
+        ),
+        appBarTheme: const AppBarTheme(
+          color: Color.fromARGB(255, 19, 19, 19),
+        ),
+        textTheme: const TextTheme(
+          headlineSmall: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: const Color.fromARGB(255, 195, 65, 25),
+            textStyle: const TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.w600,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                45.0,
+              ), // Set the circular border radius here
+            ),
+            padding: const EdgeInsets.symmetric(
+              vertical: 16,
+            ),
+          ),
+        ),
       );
 }
