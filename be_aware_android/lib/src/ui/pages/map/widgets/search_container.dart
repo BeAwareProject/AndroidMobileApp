@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
 class SearchContainer extends StatelessWidget {
-  const SearchContainer({super.key});
+  const SearchContainer({
+    super.key,
+    required this.onTapLayers,
+  });
+
+  final void Function() onTapLayers;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 5, top: 5),
+      padding: const EdgeInsets.only(left: 20, top: 5, right: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -16,7 +21,7 @@ class SearchContainer extends StatelessWidget {
             child: InkWell(
               onTap: () {},
               child: Container(
-                height: 43,
+                height: 41,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 255, 255),
                   borderRadius: BorderRadius.circular(20),
@@ -27,7 +32,7 @@ class SearchContainer extends StatelessWidget {
                     Icon(Icons.search),
                     SizedBox(width: 4),
                     Text('Search'),
-                    SizedBox(width: 200)
+                    SizedBox(width: 220),
                   ],
                 ),
               ),
@@ -35,7 +40,7 @@ class SearchContainer extends StatelessWidget {
           ),
           FloatingActionButton(
             mini: true,
-            onPressed: () {},
+            onPressed: onTapLayers,
             child: const Icon(
               Icons.layers_outlined,
               size: 22,

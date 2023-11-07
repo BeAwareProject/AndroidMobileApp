@@ -1,7 +1,12 @@
 import 'dart:async';
+import 'package:be_aware_android/src/models/event.dart';
 import 'package:be_aware_android/src/models/live.dart';
-import 'package:be_aware_android/src/ui/pages/map/pointers/current_location_pointer.dart';
-import 'package:be_aware_android/src/ui/pages/map/pointers/live_pointer.dart';
+import 'package:be_aware_android/src/ui/pages/map/pointers/current_location_marker.dart';
+import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker.dart';
+import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker_small.dart';
+import 'package:be_aware_android/src/ui/pages/map/pointers/live_marker.dart';
+import 'package:be_aware_android/src/ui/pages/map/pointers/live_marker_small.dart';
+import 'package:be_aware_android/src/ui/pages/map/widgets/layers_bottom_sheet.dart';
 import 'package:be_aware_android/src/ui/pages/map/widgets/search_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -23,12 +28,23 @@ class _MapPageState extends State<MapPage> {
   LatLng? _currentLocation;
   LatLng? _initLocation;
   LatLng? _lastLocation;
+  bool _showSmallMarkers = false;
+
   final List<Live> _lives = [
     Live(position: const LatLng(51.073716, 16.990467)),
     Live(position: const LatLng(51.073897, 16.997748)),
     Live(position: const LatLng(51.110026, 17.055876)),
     Live(position: const LatLng(51.109264, 17.063568)),
     Live(position: const LatLng(51.110139, 17.059891)),
+    Live(position: const LatLng(51.106771, 17.036558)),
+    Live(position: const LatLng(51.113179, 17.026402)),
+  ];
+
+  final List<Event> _events = [
+    Event(position: const LatLng(51.070985, 16.991848)),
+    Event(position: const LatLng(51.108462, 17.056878)),
+    Event(position: const LatLng(51.111634, 17.056981)),
+    Event(position: const LatLng(51.112122, 17.040233)),
   ];
 
   @override
@@ -88,6 +104,27 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  void _handleMapPositionChange(MapPosition position, bool hasGesture) {
+    if (position.zoom != null) {
+      setState(() {
+        if (position.zoom! > 16) {
+          _showSmallMarkers = false;
+        } else {
+          _showSmallMarkers = true;
+        }
+      });
+    }
+  }
+
+  void _showLayersBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return const LayersBottomSheet();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,20 +141,36 @@ class _MapPageState extends State<MapPage> {
                   options: MapOptions(
                     initialCenter: _initLocation!,
                     initialZoom: 14,
+                    onPositionChanged: _handleMapPositionChange,
                   ),
                   children: [
                     TileLayer(
                       urlTemplate:
-                          'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                          'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
                     ),
+                    _lives.isNotEmpty
+                        ? MarkerLayer(
+                            markers: _lives
+                                .map((live) => _showSmallMarkers
+                                    ? LiveMarkerSmall(position: live.position)
+                                    : LiveMarker(position: live.position))
+                                .toList(),
+                          )
+                        : const SizedBox(),
+                    _events.isNotEmpty
+                        ? MarkerLayer(
+                            markers: _events
+                                .map((event) => _showSmallMarkers
+                                    ? EventMarkerSmall(position: event.position)
+                                    : EventMarker(position: event.position))
+                                .toList(),
+                          )
+                        : const SizedBox(),
                     _currentLocation != null
                         ? MarkerLayer(
                             markers: [
-                              Marker(
-                                width: 17.0,
-                                height: 17.0,
-                                point: _currentLocation!,
-                                child: const CurrentLocationPointer(),
+                              CurrentLocationMarker(
+                                position: _currentLocation!,
                               ),
                             ],
                           )
@@ -125,41 +178,20 @@ class _MapPageState extends State<MapPage> {
                     _currentLocation == null && _lastLocation != null
                         ? MarkerLayer(
                             markers: [
-                              Marker(
-                                width: 17.0,
-                                height: 17.0,
-                                point: _lastLocation!,
-                                child: const CurrentLocationPointer(
-                                    outDated: true),
+                              CurrentLocationMarker(
+                                position: _lastLocation!,
+                                outDated: true,
                               ),
                             ],
                           )
                         : const SizedBox(),
-                    _lives.isNotEmpty
-                        ? MarkerLayer(
-                            markers: _lives.map((live) {
-                              return Marker(
-                                width: 40,
-                                height: 20,
-                                point: live.position,
-                                child: const LivePointer(),
-                              );
-                            }).toList(),
-                          )
-                        : const SizedBox(),
-                    /*_lives.map((live) {
-                      return Marker(
-                        width: 17.0,
-                        height: 17.0,
-                        point: live.position,
-                        child, // Create a custom marker widget
-                      );
-                    }).toList(),*/
                   ],
                 ),
-                const Align(
+                Align(
                   alignment: Alignment.topCenter,
-                  child: SearchContainer(),
+                  child: SearchContainer(
+                    onTapLayers: _showLayersBottomSheet,
+                  ),
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
@@ -187,38 +219,6 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ),
                 ),
-                /*Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: 10, left: 16, right: 16),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            child: const SizedBox(
-                              width: double.infinity,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('Report danger'),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        FloatingActionButton(
-                          onPressed: () {},
-                          child: const Icon(Icons.my_location_outlined),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),*/
               ],
             ),
     );
