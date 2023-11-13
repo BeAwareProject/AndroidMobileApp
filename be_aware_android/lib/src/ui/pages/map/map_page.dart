@@ -1,6 +1,8 @@
 import 'dart:async';
-import 'package:be_aware_android/src/models/event.dart';
+import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
+import 'package:be_aware_android/generated_code/dependency_injection/injectable.dart';
 import 'package:be_aware_android/src/models/live.dart';
+import 'package:be_aware_android/src/services/events_service.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/current_location_marker.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker_small.dart';
@@ -24,11 +26,15 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   final Key _mapKey = GlobalKey();
   final MapController _mapController = MapController();
+  final EventsService _eventsService = getIt();
+
   late Timer _locationTimer;
   LatLng? _currentLocation;
   LatLng? _initLocation;
   LatLng? _lastLocation;
+
   bool _showSmallMarkers = false;
+  List<EventDto> _events = [];
 
   final List<Live> _lives = [
     Live(position: const LatLng(51.073716, 16.990467)),
@@ -40,12 +46,12 @@ class _MapPageState extends State<MapPage> {
     Live(position: const LatLng(51.113179, 17.026402)),
   ];
 
-  final List<Event> _events = [
+  /*final List<Event> _events = [
     Event(position: const LatLng(51.070985, 16.991848)),
     Event(position: const LatLng(51.108462, 17.056878)),
     Event(position: const LatLng(51.111634, 17.056981)),
     Event(position: const LatLng(51.112122, 17.040233)),
-  ];
+  ];*/
 
   @override
   void initState() {
@@ -107,7 +113,7 @@ class _MapPageState extends State<MapPage> {
   void _handleMapPositionChange(MapPosition position, bool hasGesture) {
     if (position.zoom != null) {
       setState(() {
-        if (position.zoom! > 16) {
+        if (position.zoom! > 15) {
           _showSmallMarkers = false;
         } else {
           _showSmallMarkers = true;
@@ -160,9 +166,11 @@ class _MapPageState extends State<MapPage> {
                     _events.isNotEmpty
                         ? MarkerLayer(
                             markers: _events
-                                .map((event) => _showSmallMarkers
-                                    ? EventMarkerSmall(position: event.position)
-                                    : EventMarker(position: event.position))
+                                .map(
+                                  (event) => _showSmallMarkers
+                                      ? EventMarkerSmall(event: event)
+                                      : EventMarker(event: event),
+                                )
                                 .toList(),
                           )
                         : const SizedBox(),
@@ -209,7 +217,18 @@ class _MapPageState extends State<MapPage> {
                           backgroundColor:
                               const Color.fromARGB(255, 195, 65, 25),
                           foregroundColor: Colors.white,
-                          onPressed: () {},
+                          onPressed: () {
+                            LatLngBounds bounds =
+                                _mapController.camera.visibleBounds;
+                            setState(() async {
+                              _events = (await _eventsService.getEvents(
+                                bounds.northWest, bounds.southEast,
+                                //const LatLng(51.172751, 16.966052),
+                                //const LatLng(51.025937, 17.173175),
+                              ))
+                                  .content!;
+                            });
+                          },
                           child: const Icon(
                             Icons.report_outlined,
                             size: 28,

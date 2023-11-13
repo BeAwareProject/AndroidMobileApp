@@ -1,15 +1,19 @@
+import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/src/ui/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class EventMarker extends Marker {
-  final LatLng position;
-  const EventMarker({required this.position})
+  final EventDto event;
+  EventMarker({required this.event})
       : super(
           width: 55,
           height: 20,
-          point: position,
+          point: LatLng(
+            event.location.latitude,
+            event.location.longitude,
+          ),
           child: const _LivePointer(),
         );
 }
