@@ -5,13 +5,13 @@ class AppTheme {
   static ThemeData get theme => _theme();
 
   static ThemeData _theme() => ThemeData(
-      brightness: Brightness.light,
-      colorScheme: const ColorScheme.light().copyWith(
+      colorScheme: const ColorScheme.dark().copyWith(
         tertiaryContainer: Colors.deepOrange,
       ),
       appBarTheme: const AppBarTheme(
         color: Color.fromARGB(255, 19, 19, 19),
       ),
+      scaffoldBackgroundColor: const Color.fromARGB(255, 19, 19, 19),
       textTheme: const TextTheme(
         headlineSmall: TextStyle(
           fontSize: 20,

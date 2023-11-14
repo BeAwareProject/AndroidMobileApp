@@ -35,6 +35,7 @@ class _MapPageState extends State<MapPage> {
 
   bool _showSmallMarkers = false;
   List<EventDto> _events = [];
+  StreamSubscription<void>? _lastEventsUpdateAction;
 
   final List<Live> _lives = [
     Live(position: const LatLng(51.073716, 16.990467)),
@@ -120,6 +121,29 @@ class _MapPageState extends State<MapPage> {
         }
       });
     }
+    _updatePointers();
+  }
+
+  void _updatePointers() {
+    if (_lastEventsUpdateAction != null) {
+      _lastEventsUpdateAction!.cancel();
+    }
+    _lastEventsUpdateAction = Future.delayed(
+      const Duration(milliseconds: 500),
+    ).asStream().listen((_) {
+      _getAndSetNewEventsForMapBounds();
+    });
+  }
+
+  Future<void> _getAndSetNewEventsForMapBounds() async {
+    LatLngBounds visibleMapBounds = _mapController.camera.visibleBounds;
+    PageEventDto pageEvent = await _eventsService.getEvents(
+      visibleMapBounds.northWest,
+      visibleMapBounds.southEast,
+    );
+    setState(() {
+      _events = pageEvent.content != null ? pageEvent.content! : [];
+    });
   }
 
   void _showLayersBottomSheet() {
