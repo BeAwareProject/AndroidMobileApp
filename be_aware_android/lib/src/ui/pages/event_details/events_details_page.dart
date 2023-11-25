@@ -45,7 +45,15 @@ class _StateEventDetailsPage extends State<EventDetailsPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [Image.network(widget.event.imageUrl!)]),
             )
-          : const SizedBox(),
+          : const Column(
+              children: [
+                SizedBox(height: 220),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Text("No image")],
+                ),
+              ],
+            ),
       bottomSheet:
           _showBottomSheet ? EventInfoWidget(event: widget.event) : null,
     );

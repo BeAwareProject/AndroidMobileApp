@@ -13,9 +13,9 @@ class SearchContainer extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 5, right: 5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Material(
+          /*Material(
             elevation: 2,
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
@@ -40,7 +40,7 @@ class SearchContainer extends StatelessWidget {
                 ),
               ),
             ),
-          ),
+          ),*/
           FloatingActionButton(
             mini: true,
             onPressed: onTapLayers,

@@ -6,28 +6,14 @@ part of 'api_spec.swagger.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-EventForm _$EventFormFromJson(Map<String, dynamic> json) => EventForm(
-      location: Location.fromJson(json['location'] as Map<String, dynamic>),
-      description: json['description'] as String,
-      casualties: json['casualties'] as bool,
-      deadly: json['deadly'] as bool,
+TagForm _$TagFormFromJson(Map<String, dynamic> json) => TagForm(
+      name: json['name'] as String,
+      langtag: json['langtag'] as String,
     );
 
-Map<String, dynamic> _$EventFormToJson(EventForm instance) => <String, dynamic>{
-      'location': instance.location.toJson(),
-      'description': instance.description,
-      'casualties': instance.casualties,
-      'deadly': instance.deadly,
-    };
-
-Location _$LocationFromJson(Map<String, dynamic> json) => Location(
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
-    );
-
-Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
-      'latitude': instance.latitude,
-      'longitude': instance.longitude,
+Map<String, dynamic> _$TagFormToJson(TagForm instance) => <String, dynamic>{
+      'name': instance.name,
+      'langtag': instance.langtag,
     };
 
 ProblemDetail _$ProblemDetailFromJson(Map<String, dynamic> json) =>
@@ -50,16 +36,58 @@ Map<String, dynamic> _$ProblemDetailToJson(ProblemDetail instance) =>
       'properties': instance.properties,
     };
 
+TagDto _$TagDtoFromJson(Map<String, dynamic> json) => TagDto(
+      id: json['id'] as int,
+      name: json['name'] as String,
+    );
+
+Map<String, dynamic> _$TagDtoToJson(TagDto instance) => <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+    };
+
+EventForm _$EventFormFromJson(Map<String, dynamic> json) => EventForm(
+      location: Location.fromJson(json['location'] as Map<String, dynamic>),
+      description: json['description'] as String,
+      casualties: json['casualties'] as bool?,
+      deadly: json['deadly'] as bool,
+      tagIds:
+          (json['tagIds'] as List<dynamic>?)?.map((e) => e as int).toList() ??
+              [],
+    );
+
+Map<String, dynamic> _$EventFormToJson(EventForm instance) => <String, dynamic>{
+      'location': instance.location.toJson(),
+      'description': instance.description,
+      'casualties': instance.casualties,
+      'deadly': instance.deadly,
+      'tagIds': instance.tagIds,
+    };
+
+Location _$LocationFromJson(Map<String, dynamic> json) => Location(
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+    );
+
+Map<String, dynamic> _$LocationToJson(Location instance) => <String, dynamic>{
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+    };
+
 EventDto _$EventDtoFromJson(Map<String, dynamic> json) => EventDto(
       id: json['id'] as int,
       location: Location.fromJson(json['location'] as Map<String, dynamic>),
       description: json['description'] as String,
-      casualties: json['casualties'] as bool,
+      casualties: json['casualties'] as bool?,
       deadly: json['deadly'] as bool,
       time: DateTime.parse(json['time'] as String),
       userDto: UserDto.fromJson(json['userDto'] as Map<String, dynamic>),
       hasImage: json['hasImage'] as bool,
       imageUrl: json['imageUrl'] as String?,
+      tags: (json['tags'] as List<dynamic>?)
+              ?.map((e) => TagDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
 
 Map<String, dynamic> _$EventDtoToJson(EventDto instance) => <String, dynamic>{
@@ -72,6 +100,7 @@ Map<String, dynamic> _$EventDtoToJson(EventDto instance) => <String, dynamic>{
       'userDto': instance.userDto.toJson(),
       'hasImage': instance.hasImage,
       'imageUrl': instance.imageUrl,
+      'tags': instance.tags.map((e) => e.toJson()).toList(),
     };
 
 UserDto _$UserDtoFromJson(Map<String, dynamic> json) => UserDto(
@@ -108,7 +137,7 @@ Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>
       'refresh_token': instance.refreshToken,
     };
 
-PageEventDto _$PageEventDtoFromJson(Map<String, dynamic> json) => PageEventDto(
+PageTagDto _$PageTagDtoFromJson(Map<String, dynamic> json) => PageTagDto(
       totalPages: json['totalPages'] as int?,
       totalElements: json['totalElements'] as int?,
       pageable: json['pageable'] == null
@@ -116,7 +145,7 @@ PageEventDto _$PageEventDtoFromJson(Map<String, dynamic> json) => PageEventDto(
           : PageableObject.fromJson(json['pageable'] as Map<String, dynamic>),
       size: json['size'] as int?,
       content: (json['content'] as List<dynamic>?)
-              ?.map((e) => EventDto.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => TagDto.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       number: json['number'] as int?,
@@ -129,7 +158,7 @@ PageEventDto _$PageEventDtoFromJson(Map<String, dynamic> json) => PageEventDto(
       empty: json['empty'] as bool?,
     );
 
-Map<String, dynamic> _$PageEventDtoToJson(PageEventDto instance) =>
+Map<String, dynamic> _$PageTagDtoToJson(PageTagDto instance) =>
     <String, dynamic>{
       'totalPages': instance.totalPages,
       'totalElements': instance.totalElements,
@@ -179,14 +208,50 @@ Map<String, dynamic> _$SortObjectToJson(SortObject instance) =>
       'unsorted': instance.unsorted,
     };
 
-EventEventIdImgPost$RequestBody _$EventEventIdImgPost$RequestBodyFromJson(
+PageEventDto _$PageEventDtoFromJson(Map<String, dynamic> json) => PageEventDto(
+      totalPages: json['totalPages'] as int?,
+      totalElements: json['totalElements'] as int?,
+      pageable: json['pageable'] == null
+          ? null
+          : PageableObject.fromJson(json['pageable'] as Map<String, dynamic>),
+      size: json['size'] as int?,
+      content: (json['content'] as List<dynamic>?)
+              ?.map((e) => EventDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      number: json['number'] as int?,
+      sort: json['sort'] == null
+          ? null
+          : SortObject.fromJson(json['sort'] as Map<String, dynamic>),
+      numberOfElements: json['numberOfElements'] as int?,
+      first: json['first'] as bool?,
+      last: json['last'] as bool?,
+      empty: json['empty'] as bool?,
+    );
+
+Map<String, dynamic> _$PageEventDtoToJson(PageEventDto instance) =>
+    <String, dynamic>{
+      'totalPages': instance.totalPages,
+      'totalElements': instance.totalElements,
+      'pageable': instance.pageable?.toJson(),
+      'size': instance.size,
+      'content': instance.content?.map((e) => e.toJson()).toList(),
+      'number': instance.number,
+      'sort': instance.sort?.toJson(),
+      'numberOfElements': instance.numberOfElements,
+      'first': instance.first,
+      'last': instance.last,
+      'empty': instance.empty,
+    };
+
+EventsEventIdImgPost$RequestBody _$EventsEventIdImgPost$RequestBodyFromJson(
         Map<String, dynamic> json) =>
-    EventEventIdImgPost$RequestBody(
+    EventsEventIdImgPost$RequestBody(
       file: json['file'] as String,
     );
 
-Map<String, dynamic> _$EventEventIdImgPost$RequestBodyToJson(
-        EventEventIdImgPost$RequestBody instance) =>
+Map<String, dynamic> _$EventsEventIdImgPost$RequestBodyToJson(
+        EventsEventIdImgPost$RequestBody instance) =>
     <String, dynamic>{
       'file': instance.file,
     };

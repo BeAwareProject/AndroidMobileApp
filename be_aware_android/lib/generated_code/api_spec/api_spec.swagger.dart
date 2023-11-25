@@ -43,52 +43,86 @@ abstract class ApiSpec extends ChopperService {
     return _$ApiSpec(newClient);
   }
 
+  ///[AUTH REQUIRED] [ADMIN ONLY]
+  ///@param tagId
+  Future<chopper.Response<TagDto>> tagsTagIdPut({
+    required int? tagId,
+    required TagForm? body,
+  }) {
+    generatedMapping.putIfAbsent(TagDto, () => TagDto.fromJsonFactory);
+
+    return _tagsTagIdPut(tagId: tagId, body: body);
+  }
+
+  ///[AUTH REQUIRED] [ADMIN ONLY]
+  ///@param tagId
+  @Put(
+    path: '/tags/{tagId}',
+    optionalBody: true,
+  )
+  Future<chopper.Response<TagDto>> _tagsTagIdPut({
+    @Path('tagId') required int? tagId,
+    @Body() required TagForm? body,
+  });
+
+  ///[AUTH REQUIRED] [ADMIN ONLY]
+  ///@param tagId
+  Future<chopper.Response> tagsTagIdDelete({required int? tagId}) {
+    return _tagsTagIdDelete(tagId: tagId);
+  }
+
+  ///[AUTH REQUIRED] [ADMIN ONLY]
+  ///@param tagId
+  @Delete(path: '/tags/{tagId}')
+  Future<chopper.Response> _tagsTagIdDelete(
+      {@Path('tagId') required int? tagId});
+
   ///
   ///@param eventId
-  Future<chopper.Response<EventDto>> eventEventIdGet({required int? eventId}) {
+  Future<chopper.Response<EventDto>> eventsEventIdGet({required int? eventId}) {
     generatedMapping.putIfAbsent(EventDto, () => EventDto.fromJsonFactory);
 
-    return _eventEventIdGet(eventId: eventId);
+    return _eventsEventIdGet(eventId: eventId);
   }
 
   ///
   ///@param eventId
-  @Get(path: '/event/{eventId}/')
-  Future<chopper.Response<EventDto>> _eventEventIdGet(
+  @Get(path: '/events/{eventId}')
+  Future<chopper.Response<EventDto>> _eventsEventIdGet(
       {@Path('eventId') required int? eventId});
 
   ///[AUTH REQUIRED] [ADMIN ONLY]
   ///@param eventId
-  Future<chopper.Response<EventDto>> eventEventIdPut({
+  Future<chopper.Response<EventDto>> eventsEventIdPut({
     required int? eventId,
     required EventForm? body,
   }) {
     generatedMapping.putIfAbsent(EventDto, () => EventDto.fromJsonFactory);
 
-    return _eventEventIdPut(eventId: eventId, body: body);
+    return _eventsEventIdPut(eventId: eventId, body: body);
   }
 
   ///[AUTH REQUIRED] [ADMIN ONLY]
   ///@param eventId
   @Put(
-    path: '/event/{eventId}/',
+    path: '/events/{eventId}',
     optionalBody: true,
   )
-  Future<chopper.Response<EventDto>> _eventEventIdPut({
+  Future<chopper.Response<EventDto>> _eventsEventIdPut({
     @Path('eventId') required int? eventId,
     @Body() required EventForm? body,
   });
 
   ///[AUTH REQUIRED] [ADMIN ONLY]
   ///@param eventId
-  Future<chopper.Response> eventEventIdDelete({required int? eventId}) {
-    return _eventEventIdDelete(eventId: eventId);
+  Future<chopper.Response> eventsEventIdDelete({required int? eventId}) {
+    return _eventsEventIdDelete(eventId: eventId);
   }
 
   ///[AUTH REQUIRED] [ADMIN ONLY]
   ///@param eventId
-  @Delete(path: '/event/{eventId}/')
-  Future<chopper.Response> _eventEventIdDelete(
+  @Delete(path: '/events/{eventId}')
+  Future<chopper.Response> _eventsEventIdDelete(
       {@Path('eventId') required int? eventId});
 
   ///
@@ -100,32 +134,50 @@ abstract class ApiSpec extends ChopperService {
 
   ///
   @Post(
-    path: '/users/',
+    path: '/users',
     optionalBody: true,
   )
   Future<chopper.Response<UserDto>> _usersPost(
       {@Body() required UserForm? body});
 
-  ///[AUTH REQUIRED] [OWNERSHIP GUARD]
-  ///@param eventId
-  Future<chopper.Response> eventEventIdImgPost({
-    required int? eventId,
-    required List<int> file,
+  ///
+  ///@param page Zero-based page index (0..N)
+  ///@param size The size of the page to be returned
+  ///@param sort Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+  Future<chopper.Response<PageTagDto>> tagsGet({
+    int? page,
+    int? size,
+    List<String>? sort,
   }) {
-    return _eventEventIdImgPost(eventId: eventId, file: file);
+    generatedMapping.putIfAbsent(PageTagDto, () => PageTagDto.fromJsonFactory);
+
+    return _tagsGet(page: page, size: size, sort: sort);
   }
 
-  ///[AUTH REQUIRED] [OWNERSHIP GUARD]
-  ///@param eventId
+  ///
+  ///@param page Zero-based page index (0..N)
+  ///@param size The size of the page to be returned
+  ///@param sort Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+  @Get(path: '/tags')
+  Future<chopper.Response<PageTagDto>> _tagsGet({
+    @Query('page') int? page,
+    @Query('size') int? size,
+    @Query('sort') List<String>? sort,
+  });
+
+  ///[AUTH REQUIRED] [ADMIN ONLY]
+  Future<chopper.Response<TagDto>> tagsPost({required TagForm? body}) {
+    generatedMapping.putIfAbsent(TagDto, () => TagDto.fromJsonFactory);
+
+    return _tagsPost(body: body);
+  }
+
+  ///[AUTH REQUIRED] [ADMIN ONLY]
   @Post(
-    path: '/event/{eventId}/img/',
+    path: '/tags',
     optionalBody: true,
   )
-  @Multipart()
-  Future<chopper.Response> _eventEventIdImgPost({
-    @Path('eventId') required int? eventId,
-    @PartFile() required List<int> file,
-  });
+  Future<chopper.Response<TagDto>> _tagsPost({@Body() required TagForm? body});
 
   ///
   ///@param page Zero-based page index (0..N)
@@ -135,7 +187,7 @@ abstract class ApiSpec extends ChopperService {
   ///@param rectangleStartLongitude
   ///@param rectangleEndLatitude
   ///@param rectangleEndLongitude
-  Future<chopper.Response<PageEventDto>> eventGet({
+  Future<chopper.Response<PageEventDto>> eventsGet({
     int? page,
     int? size,
     List<String>? sort,
@@ -147,7 +199,7 @@ abstract class ApiSpec extends ChopperService {
     generatedMapping.putIfAbsent(
         PageEventDto, () => PageEventDto.fromJsonFactory);
 
-    return _eventGet(
+    return _eventsGet(
         page: page,
         size: size,
         sort: sort,
@@ -165,8 +217,8 @@ abstract class ApiSpec extends ChopperService {
   ///@param rectangleStartLongitude
   ///@param rectangleEndLatitude
   ///@param rectangleEndLongitude
-  @Get(path: '/event/')
-  Future<chopper.Response<PageEventDto>> _eventGet({
+  @Get(path: '/events')
+  Future<chopper.Response<PageEventDto>> _eventsGet({
     @Query('page') int? page,
     @Query('size') int? size,
     @Query('sort') List<String>? sort,
@@ -177,19 +229,40 @@ abstract class ApiSpec extends ChopperService {
   });
 
   ///[AUTH REQUIRED]
-  Future<chopper.Response<EventDto>> eventPost({required EventForm? body}) {
+  Future<chopper.Response<EventDto>> eventsPost({required EventForm? body}) {
     generatedMapping.putIfAbsent(EventDto, () => EventDto.fromJsonFactory);
 
-    return _eventPost(body: body);
+    return _eventsPost(body: body);
   }
 
   ///[AUTH REQUIRED]
   @Post(
-    path: '/event/',
+    path: '/events',
     optionalBody: true,
   )
-  Future<chopper.Response<EventDto>> _eventPost(
+  Future<chopper.Response<EventDto>> _eventsPost(
       {@Body() required EventForm? body});
+
+  ///[AUTH REQUIRED] [OWNERSHIP GUARD]
+  ///@param eventId
+  Future<chopper.Response> eventsEventIdImgPost({
+    required int? eventId,
+    required List<int> file,
+  }) {
+    return _eventsEventIdImgPost(eventId: eventId, file: file);
+  }
+
+  ///[AUTH REQUIRED] [OWNERSHIP GUARD]
+  ///@param eventId
+  @Post(
+    path: '/events/{eventId}/img',
+    optionalBody: true,
+  )
+  @Multipart()
+  Future<chopper.Response> _eventsEventIdImgPost({
+    @Path('eventId') required int? eventId,
+    @PartFile() required List<int> file,
+  });
 
   ///[LOGIN/PASSWORD REQUIRED] creates and returns refresh and access tokens
   Future<chopper.Response<LoginResponse>> authLoginPost(
@@ -202,7 +275,7 @@ abstract class ApiSpec extends ChopperService {
 
   ///[LOGIN/PASSWORD REQUIRED] creates and returns refresh and access tokens
   @Post(
-    path: '/auth/login/',
+    path: '/auth/login',
     optionalBody: true,
   )
   Future<chopper.Response<LoginResponse>> _authLoginPost(
@@ -218,21 +291,21 @@ abstract class ApiSpec extends ChopperService {
 
   ///[REFRESH TOKEN REQUIRED] refreshes and returns refresh and access tokens
   @Patch(
-    path: '/auth/login/',
+    path: '/auth/login',
     optionalBody: true,
   )
   Future<chopper.Response<LoginResponse>> _authLoginPatch();
 
   ///
   ///@param eventId
-  Future<chopper.Response> eventEventIdImgWebpGet({required int? eventId}) {
-    return _eventEventIdImgWebpGet(eventId: eventId);
+  Future<chopper.Response> eventsEventIdImgWebpGet({required int? eventId}) {
+    return _eventsEventIdImgWebpGet(eventId: eventId);
   }
 
   ///
   ///@param eventId
-  @Get(path: '/event/{eventId}/img.webp')
-  Future<chopper.Response> _eventEventIdImgWebpGet(
+  @Get(path: '/events/{eventId}/img.webp')
+  Future<chopper.Response> _eventsEventIdImgWebpGet(
       {@Path('eventId') required int? eventId});
 
   ///
@@ -241,50 +314,37 @@ abstract class ApiSpec extends ChopperService {
   }
 
   ///
-  @Get(path: '/auth/say_hello/')
+  @Get(path: '/auth/say_hello')
   Future<chopper.Response<String>> _authSayHelloGet();
 }
 
 @JsonSerializable(explicitToJson: true)
-class EventForm {
-  const EventForm({
-    required this.location,
-    required this.description,
-    required this.casualties,
-    required this.deadly,
+class TagForm {
+  const TagForm({
+    required this.name,
+    required this.langtag,
   });
 
-  factory EventForm.fromJson(Map<String, dynamic> json) =>
-      _$EventFormFromJson(json);
+  factory TagForm.fromJson(Map<String, dynamic> json) =>
+      _$TagFormFromJson(json);
 
-  static const toJsonFactory = _$EventFormToJson;
-  Map<String, dynamic> toJson() => _$EventFormToJson(this);
+  static const toJsonFactory = _$TagFormToJson;
+  Map<String, dynamic> toJson() => _$TagFormToJson(this);
 
-  @JsonKey(name: 'location')
-  final Location location;
-  @JsonKey(name: 'description')
-  final String description;
-  @JsonKey(name: 'casualties')
-  final bool casualties;
-  @JsonKey(name: 'deadly')
-  final bool deadly;
-  static const fromJsonFactory = _$EventFormFromJson;
+  @JsonKey(name: 'name')
+  final String name;
+  @JsonKey(name: 'langtag')
+  final String langtag;
+  static const fromJsonFactory = _$TagFormFromJson;
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is EventForm &&
-            (identical(other.location, location) ||
-                const DeepCollectionEquality()
-                    .equals(other.location, location)) &&
-            (identical(other.description, description) ||
-                const DeepCollectionEquality()
-                    .equals(other.description, description)) &&
-            (identical(other.casualties, casualties) ||
-                const DeepCollectionEquality()
-                    .equals(other.casualties, casualties)) &&
-            (identical(other.deadly, deadly) ||
-                const DeepCollectionEquality().equals(other.deadly, deadly)));
+        (other is TagForm &&
+            (identical(other.name, name) ||
+                const DeepCollectionEquality().equals(other.name, name)) &&
+            (identical(other.langtag, langtag) ||
+                const DeepCollectionEquality().equals(other.langtag, langtag)));
   }
 
   @override
@@ -292,93 +352,20 @@ class EventForm {
 
   @override
   int get hashCode =>
-      const DeepCollectionEquality().hash(location) ^
-      const DeepCollectionEquality().hash(description) ^
-      const DeepCollectionEquality().hash(casualties) ^
-      const DeepCollectionEquality().hash(deadly) ^
+      const DeepCollectionEquality().hash(name) ^
+      const DeepCollectionEquality().hash(langtag) ^
       runtimeType.hashCode;
 }
 
-extension $EventFormExtension on EventForm {
-  EventForm copyWith(
-      {Location? location,
-      String? description,
-      bool? casualties,
-      bool? deadly}) {
-    return EventForm(
-        location: location ?? this.location,
-        description: description ?? this.description,
-        casualties: casualties ?? this.casualties,
-        deadly: deadly ?? this.deadly);
+extension $TagFormExtension on TagForm {
+  TagForm copyWith({String? name, String? langtag}) {
+    return TagForm(name: name ?? this.name, langtag: langtag ?? this.langtag);
   }
 
-  EventForm copyWithWrapped(
-      {Wrapped<Location>? location,
-      Wrapped<String>? description,
-      Wrapped<bool>? casualties,
-      Wrapped<bool>? deadly}) {
-    return EventForm(
-        location: (location != null ? location.value : this.location),
-        description:
-            (description != null ? description.value : this.description),
-        casualties: (casualties != null ? casualties.value : this.casualties),
-        deadly: (deadly != null ? deadly.value : this.deadly));
-  }
-}
-
-@JsonSerializable(explicitToJson: true)
-class Location {
-  const Location({
-    required this.latitude,
-    required this.longitude,
-  });
-
-  factory Location.fromJson(Map<String, dynamic> json) =>
-      _$LocationFromJson(json);
-
-  static const toJsonFactory = _$LocationToJson;
-  Map<String, dynamic> toJson() => _$LocationToJson(this);
-
-  @JsonKey(name: 'latitude')
-  final double latitude;
-  @JsonKey(name: 'longitude')
-  final double longitude;
-  static const fromJsonFactory = _$LocationFromJson;
-
-  @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
-        (other is Location &&
-            (identical(other.latitude, latitude) ||
-                const DeepCollectionEquality()
-                    .equals(other.latitude, latitude)) &&
-            (identical(other.longitude, longitude) ||
-                const DeepCollectionEquality()
-                    .equals(other.longitude, longitude)));
-  }
-
-  @override
-  String toString() => jsonEncode(this);
-
-  @override
-  int get hashCode =>
-      const DeepCollectionEquality().hash(latitude) ^
-      const DeepCollectionEquality().hash(longitude) ^
-      runtimeType.hashCode;
-}
-
-extension $LocationExtension on Location {
-  Location copyWith({double? latitude, double? longitude}) {
-    return Location(
-        latitude: latitude ?? this.latitude,
-        longitude: longitude ?? this.longitude);
-  }
-
-  Location copyWithWrapped(
-      {Wrapped<double>? latitude, Wrapped<double>? longitude}) {
-    return Location(
-        latitude: (latitude != null ? latitude.value : this.latitude),
-        longitude: (longitude != null ? longitude.value : this.longitude));
+  TagForm copyWithWrapped({Wrapped<String>? name, Wrapped<String>? langtag}) {
+    return TagForm(
+        name: (name != null ? name.value : this.name),
+        langtag: (langtag != null ? langtag.value : this.langtag));
   }
 }
 
@@ -482,17 +469,215 @@ extension $ProblemDetailExtension on ProblemDetail {
 }
 
 @JsonSerializable(explicitToJson: true)
+class TagDto {
+  const TagDto({
+    required this.id,
+    required this.name,
+  });
+
+  factory TagDto.fromJson(Map<String, dynamic> json) => _$TagDtoFromJson(json);
+
+  static const toJsonFactory = _$TagDtoToJson;
+  Map<String, dynamic> toJson() => _$TagDtoToJson(this);
+
+  @JsonKey(name: 'id')
+  final int id;
+  @JsonKey(name: 'name')
+  final String name;
+  static const fromJsonFactory = _$TagDtoFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is TagDto &&
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.name, name) ||
+                const DeepCollectionEquality().equals(other.name, name)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(id) ^
+      const DeepCollectionEquality().hash(name) ^
+      runtimeType.hashCode;
+}
+
+extension $TagDtoExtension on TagDto {
+  TagDto copyWith({int? id, String? name}) {
+    return TagDto(id: id ?? this.id, name: name ?? this.name);
+  }
+
+  TagDto copyWithWrapped({Wrapped<int>? id, Wrapped<String>? name}) {
+    return TagDto(
+        id: (id != null ? id.value : this.id),
+        name: (name != null ? name.value : this.name));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
+class EventForm {
+  const EventForm({
+    required this.location,
+    required this.description,
+    this.casualties,
+    required this.deadly,
+    required this.tagIds,
+  });
+
+  factory EventForm.fromJson(Map<String, dynamic> json) =>
+      _$EventFormFromJson(json);
+
+  static const toJsonFactory = _$EventFormToJson;
+  Map<String, dynamic> toJson() => _$EventFormToJson(this);
+
+  @JsonKey(name: 'location')
+  final Location location;
+  @JsonKey(name: 'description')
+  final String description;
+  @JsonKey(name: 'casualties')
+  final bool? casualties;
+  @JsonKey(name: 'deadly')
+  final bool deadly;
+  @JsonKey(name: 'tagIds', defaultValue: <int>[])
+  final List<int> tagIds;
+  static const fromJsonFactory = _$EventFormFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is EventForm &&
+            (identical(other.location, location) ||
+                const DeepCollectionEquality()
+                    .equals(other.location, location)) &&
+            (identical(other.description, description) ||
+                const DeepCollectionEquality()
+                    .equals(other.description, description)) &&
+            (identical(other.casualties, casualties) ||
+                const DeepCollectionEquality()
+                    .equals(other.casualties, casualties)) &&
+            (identical(other.deadly, deadly) ||
+                const DeepCollectionEquality().equals(other.deadly, deadly)) &&
+            (identical(other.tagIds, tagIds) ||
+                const DeepCollectionEquality().equals(other.tagIds, tagIds)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(location) ^
+      const DeepCollectionEquality().hash(description) ^
+      const DeepCollectionEquality().hash(casualties) ^
+      const DeepCollectionEquality().hash(deadly) ^
+      const DeepCollectionEquality().hash(tagIds) ^
+      runtimeType.hashCode;
+}
+
+extension $EventFormExtension on EventForm {
+  EventForm copyWith(
+      {Location? location,
+      String? description,
+      bool? casualties,
+      bool? deadly,
+      List<int>? tagIds}) {
+    return EventForm(
+        location: location ?? this.location,
+        description: description ?? this.description,
+        casualties: casualties ?? this.casualties,
+        deadly: deadly ?? this.deadly,
+        tagIds: tagIds ?? this.tagIds);
+  }
+
+  EventForm copyWithWrapped(
+      {Wrapped<Location>? location,
+      Wrapped<String>? description,
+      Wrapped<bool?>? casualties,
+      Wrapped<bool>? deadly,
+      Wrapped<List<int>>? tagIds}) {
+    return EventForm(
+        location: (location != null ? location.value : this.location),
+        description:
+            (description != null ? description.value : this.description),
+        casualties: (casualties != null ? casualties.value : this.casualties),
+        deadly: (deadly != null ? deadly.value : this.deadly),
+        tagIds: (tagIds != null ? tagIds.value : this.tagIds));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
+class Location {
+  const Location({
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory Location.fromJson(Map<String, dynamic> json) =>
+      _$LocationFromJson(json);
+
+  static const toJsonFactory = _$LocationToJson;
+  Map<String, dynamic> toJson() => _$LocationToJson(this);
+
+  @JsonKey(name: 'latitude')
+  final double latitude;
+  @JsonKey(name: 'longitude')
+  final double longitude;
+  static const fromJsonFactory = _$LocationFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is Location &&
+            (identical(other.latitude, latitude) ||
+                const DeepCollectionEquality()
+                    .equals(other.latitude, latitude)) &&
+            (identical(other.longitude, longitude) ||
+                const DeepCollectionEquality()
+                    .equals(other.longitude, longitude)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(latitude) ^
+      const DeepCollectionEquality().hash(longitude) ^
+      runtimeType.hashCode;
+}
+
+extension $LocationExtension on Location {
+  Location copyWith({double? latitude, double? longitude}) {
+    return Location(
+        latitude: latitude ?? this.latitude,
+        longitude: longitude ?? this.longitude);
+  }
+
+  Location copyWithWrapped(
+      {Wrapped<double>? latitude, Wrapped<double>? longitude}) {
+    return Location(
+        latitude: (latitude != null ? latitude.value : this.latitude),
+        longitude: (longitude != null ? longitude.value : this.longitude));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
 class EventDto {
   const EventDto({
     required this.id,
     required this.location,
     required this.description,
-    required this.casualties,
+    this.casualties,
     required this.deadly,
     required this.time,
     required this.userDto,
     required this.hasImage,
     this.imageUrl,
+    required this.tags,
   });
 
   factory EventDto.fromJson(Map<String, dynamic> json) =>
@@ -508,7 +693,7 @@ class EventDto {
   @JsonKey(name: 'description')
   final String description;
   @JsonKey(name: 'casualties')
-  final bool casualties;
+  final bool? casualties;
   @JsonKey(name: 'deadly')
   final bool deadly;
   @JsonKey(name: 'time')
@@ -519,6 +704,8 @@ class EventDto {
   final bool hasImage;
   @JsonKey(name: 'imageUrl')
   final String? imageUrl;
+  @JsonKey(name: 'tags', defaultValue: <TagDto>[])
+  final List<TagDto> tags;
   static const fromJsonFactory = _$EventDtoFromJson;
 
   @override
@@ -548,7 +735,9 @@ class EventDto {
                     .equals(other.hasImage, hasImage)) &&
             (identical(other.imageUrl, imageUrl) ||
                 const DeepCollectionEquality()
-                    .equals(other.imageUrl, imageUrl)));
+                    .equals(other.imageUrl, imageUrl)) &&
+            (identical(other.tags, tags) ||
+                const DeepCollectionEquality().equals(other.tags, tags)));
   }
 
   @override
@@ -565,6 +754,7 @@ class EventDto {
       const DeepCollectionEquality().hash(userDto) ^
       const DeepCollectionEquality().hash(hasImage) ^
       const DeepCollectionEquality().hash(imageUrl) ^
+      const DeepCollectionEquality().hash(tags) ^
       runtimeType.hashCode;
 }
 
@@ -578,7 +768,8 @@ extension $EventDtoExtension on EventDto {
       DateTime? time,
       UserDto? userDto,
       bool? hasImage,
-      String? imageUrl}) {
+      String? imageUrl,
+      List<TagDto>? tags}) {
     return EventDto(
         id: id ?? this.id,
         location: location ?? this.location,
@@ -588,19 +779,21 @@ extension $EventDtoExtension on EventDto {
         time: time ?? this.time,
         userDto: userDto ?? this.userDto,
         hasImage: hasImage ?? this.hasImage,
-        imageUrl: imageUrl ?? this.imageUrl);
+        imageUrl: imageUrl ?? this.imageUrl,
+        tags: tags ?? this.tags);
   }
 
   EventDto copyWithWrapped(
       {Wrapped<int>? id,
       Wrapped<Location>? location,
       Wrapped<String>? description,
-      Wrapped<bool>? casualties,
+      Wrapped<bool?>? casualties,
       Wrapped<bool>? deadly,
       Wrapped<DateTime>? time,
       Wrapped<UserDto>? userDto,
       Wrapped<bool>? hasImage,
-      Wrapped<String?>? imageUrl}) {
+      Wrapped<String?>? imageUrl,
+      Wrapped<List<TagDto>>? tags}) {
     return EventDto(
         id: (id != null ? id.value : this.id),
         location: (location != null ? location.value : this.location),
@@ -611,7 +804,8 @@ extension $EventDtoExtension on EventDto {
         time: (time != null ? time.value : this.time),
         userDto: (userDto != null ? userDto.value : this.userDto),
         hasImage: (hasImage != null ? hasImage.value : this.hasImage),
-        imageUrl: (imageUrl != null ? imageUrl.value : this.imageUrl));
+        imageUrl: (imageUrl != null ? imageUrl.value : this.imageUrl),
+        tags: (tags != null ? tags.value : this.tags));
   }
 }
 
@@ -793,8 +987,8 @@ extension $LoginResponseExtension on LoginResponse {
 }
 
 @JsonSerializable(explicitToJson: true)
-class PageEventDto {
-  const PageEventDto({
+class PageTagDto {
+  const PageTagDto({
     this.totalPages,
     this.totalElements,
     this.pageable,
@@ -808,11 +1002,11 @@ class PageEventDto {
     this.empty,
   });
 
-  factory PageEventDto.fromJson(Map<String, dynamic> json) =>
-      _$PageEventDtoFromJson(json);
+  factory PageTagDto.fromJson(Map<String, dynamic> json) =>
+      _$PageTagDtoFromJson(json);
 
-  static const toJsonFactory = _$PageEventDtoToJson;
-  Map<String, dynamic> toJson() => _$PageEventDtoToJson(this);
+  static const toJsonFactory = _$PageTagDtoToJson;
+  Map<String, dynamic> toJson() => _$PageTagDtoToJson(this);
 
   @JsonKey(name: 'totalPages')
   final int? totalPages;
@@ -822,8 +1016,8 @@ class PageEventDto {
   final PageableObject? pageable;
   @JsonKey(name: 'size')
   final int? size;
-  @JsonKey(name: 'content', defaultValue: <EventDto>[])
-  final List<EventDto>? content;
+  @JsonKey(name: 'content', defaultValue: <TagDto>[])
+  final List<TagDto>? content;
   @JsonKey(name: 'number')
   final int? number;
   @JsonKey(name: 'sort')
@@ -836,12 +1030,12 @@ class PageEventDto {
   final bool? last;
   @JsonKey(name: 'empty')
   final bool? empty;
-  static const fromJsonFactory = _$PageEventDtoFromJson;
+  static const fromJsonFactory = _$PageTagDtoFromJson;
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is PageEventDto &&
+        (other is PageTagDto &&
             (identical(other.totalPages, totalPages) ||
                 const DeepCollectionEquality()
                     .equals(other.totalPages, totalPages)) &&
@@ -890,20 +1084,20 @@ class PageEventDto {
       runtimeType.hashCode;
 }
 
-extension $PageEventDtoExtension on PageEventDto {
-  PageEventDto copyWith(
+extension $PageTagDtoExtension on PageTagDto {
+  PageTagDto copyWith(
       {int? totalPages,
       int? totalElements,
       PageableObject? pageable,
       int? size,
-      List<EventDto>? content,
+      List<TagDto>? content,
       int? number,
       SortObject? sort,
       int? numberOfElements,
       bool? first,
       bool? last,
       bool? empty}) {
-    return PageEventDto(
+    return PageTagDto(
         totalPages: totalPages ?? this.totalPages,
         totalElements: totalElements ?? this.totalElements,
         pageable: pageable ?? this.pageable,
@@ -917,19 +1111,19 @@ extension $PageEventDtoExtension on PageEventDto {
         empty: empty ?? this.empty);
   }
 
-  PageEventDto copyWithWrapped(
+  PageTagDto copyWithWrapped(
       {Wrapped<int?>? totalPages,
       Wrapped<int?>? totalElements,
       Wrapped<PageableObject?>? pageable,
       Wrapped<int?>? size,
-      Wrapped<List<EventDto>?>? content,
+      Wrapped<List<TagDto>?>? content,
       Wrapped<int?>? number,
       Wrapped<SortObject?>? sort,
       Wrapped<int?>? numberOfElements,
       Wrapped<bool?>? first,
       Wrapped<bool?>? last,
       Wrapped<bool?>? empty}) {
-    return PageEventDto(
+    return PageTagDto(
         totalPages: (totalPages != null ? totalPages.value : this.totalPages),
         totalElements:
             (totalElements != null ? totalElements.value : this.totalElements),
@@ -1112,26 +1306,182 @@ extension $SortObjectExtension on SortObject {
 }
 
 @JsonSerializable(explicitToJson: true)
-class EventEventIdImgPost$RequestBody {
-  const EventEventIdImgPost$RequestBody({
-    required this.file,
+class PageEventDto {
+  const PageEventDto({
+    this.totalPages,
+    this.totalElements,
+    this.pageable,
+    this.size,
+    this.content,
+    this.number,
+    this.sort,
+    this.numberOfElements,
+    this.first,
+    this.last,
+    this.empty,
   });
 
-  factory EventEventIdImgPost$RequestBody.fromJson(Map<String, dynamic> json) =>
-      _$EventEventIdImgPost$RequestBodyFromJson(json);
+  factory PageEventDto.fromJson(Map<String, dynamic> json) =>
+      _$PageEventDtoFromJson(json);
 
-  static const toJsonFactory = _$EventEventIdImgPost$RequestBodyToJson;
-  Map<String, dynamic> toJson() =>
-      _$EventEventIdImgPost$RequestBodyToJson(this);
+  static const toJsonFactory = _$PageEventDtoToJson;
+  Map<String, dynamic> toJson() => _$PageEventDtoToJson(this);
 
-  @JsonKey(name: 'file')
-  final String file;
-  static const fromJsonFactory = _$EventEventIdImgPost$RequestBodyFromJson;
+  @JsonKey(name: 'totalPages')
+  final int? totalPages;
+  @JsonKey(name: 'totalElements')
+  final int? totalElements;
+  @JsonKey(name: 'pageable')
+  final PageableObject? pageable;
+  @JsonKey(name: 'size')
+  final int? size;
+  @JsonKey(name: 'content', defaultValue: <EventDto>[])
+  final List<EventDto>? content;
+  @JsonKey(name: 'number')
+  final int? number;
+  @JsonKey(name: 'sort')
+  final SortObject? sort;
+  @JsonKey(name: 'numberOfElements')
+  final int? numberOfElements;
+  @JsonKey(name: 'first')
+  final bool? first;
+  @JsonKey(name: 'last')
+  final bool? last;
+  @JsonKey(name: 'empty')
+  final bool? empty;
+  static const fromJsonFactory = _$PageEventDtoFromJson;
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is EventEventIdImgPost$RequestBody &&
+        (other is PageEventDto &&
+            (identical(other.totalPages, totalPages) ||
+                const DeepCollectionEquality()
+                    .equals(other.totalPages, totalPages)) &&
+            (identical(other.totalElements, totalElements) ||
+                const DeepCollectionEquality()
+                    .equals(other.totalElements, totalElements)) &&
+            (identical(other.pageable, pageable) ||
+                const DeepCollectionEquality()
+                    .equals(other.pageable, pageable)) &&
+            (identical(other.size, size) ||
+                const DeepCollectionEquality().equals(other.size, size)) &&
+            (identical(other.content, content) ||
+                const DeepCollectionEquality()
+                    .equals(other.content, content)) &&
+            (identical(other.number, number) ||
+                const DeepCollectionEquality().equals(other.number, number)) &&
+            (identical(other.sort, sort) ||
+                const DeepCollectionEquality().equals(other.sort, sort)) &&
+            (identical(other.numberOfElements, numberOfElements) ||
+                const DeepCollectionEquality()
+                    .equals(other.numberOfElements, numberOfElements)) &&
+            (identical(other.first, first) ||
+                const DeepCollectionEquality().equals(other.first, first)) &&
+            (identical(other.last, last) ||
+                const DeepCollectionEquality().equals(other.last, last)) &&
+            (identical(other.empty, empty) ||
+                const DeepCollectionEquality().equals(other.empty, empty)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(totalPages) ^
+      const DeepCollectionEquality().hash(totalElements) ^
+      const DeepCollectionEquality().hash(pageable) ^
+      const DeepCollectionEquality().hash(size) ^
+      const DeepCollectionEquality().hash(content) ^
+      const DeepCollectionEquality().hash(number) ^
+      const DeepCollectionEquality().hash(sort) ^
+      const DeepCollectionEquality().hash(numberOfElements) ^
+      const DeepCollectionEquality().hash(first) ^
+      const DeepCollectionEquality().hash(last) ^
+      const DeepCollectionEquality().hash(empty) ^
+      runtimeType.hashCode;
+}
+
+extension $PageEventDtoExtension on PageEventDto {
+  PageEventDto copyWith(
+      {int? totalPages,
+      int? totalElements,
+      PageableObject? pageable,
+      int? size,
+      List<EventDto>? content,
+      int? number,
+      SortObject? sort,
+      int? numberOfElements,
+      bool? first,
+      bool? last,
+      bool? empty}) {
+    return PageEventDto(
+        totalPages: totalPages ?? this.totalPages,
+        totalElements: totalElements ?? this.totalElements,
+        pageable: pageable ?? this.pageable,
+        size: size ?? this.size,
+        content: content ?? this.content,
+        number: number ?? this.number,
+        sort: sort ?? this.sort,
+        numberOfElements: numberOfElements ?? this.numberOfElements,
+        first: first ?? this.first,
+        last: last ?? this.last,
+        empty: empty ?? this.empty);
+  }
+
+  PageEventDto copyWithWrapped(
+      {Wrapped<int?>? totalPages,
+      Wrapped<int?>? totalElements,
+      Wrapped<PageableObject?>? pageable,
+      Wrapped<int?>? size,
+      Wrapped<List<EventDto>?>? content,
+      Wrapped<int?>? number,
+      Wrapped<SortObject?>? sort,
+      Wrapped<int?>? numberOfElements,
+      Wrapped<bool?>? first,
+      Wrapped<bool?>? last,
+      Wrapped<bool?>? empty}) {
+    return PageEventDto(
+        totalPages: (totalPages != null ? totalPages.value : this.totalPages),
+        totalElements:
+            (totalElements != null ? totalElements.value : this.totalElements),
+        pageable: (pageable != null ? pageable.value : this.pageable),
+        size: (size != null ? size.value : this.size),
+        content: (content != null ? content.value : this.content),
+        number: (number != null ? number.value : this.number),
+        sort: (sort != null ? sort.value : this.sort),
+        numberOfElements: (numberOfElements != null
+            ? numberOfElements.value
+            : this.numberOfElements),
+        first: (first != null ? first.value : this.first),
+        last: (last != null ? last.value : this.last),
+        empty: (empty != null ? empty.value : this.empty));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
+class EventsEventIdImgPost$RequestBody {
+  const EventsEventIdImgPost$RequestBody({
+    required this.file,
+  });
+
+  factory EventsEventIdImgPost$RequestBody.fromJson(
+          Map<String, dynamic> json) =>
+      _$EventsEventIdImgPost$RequestBodyFromJson(json);
+
+  static const toJsonFactory = _$EventsEventIdImgPost$RequestBodyToJson;
+  Map<String, dynamic> toJson() =>
+      _$EventsEventIdImgPost$RequestBodyToJson(this);
+
+  @JsonKey(name: 'file')
+  final String file;
+  static const fromJsonFactory = _$EventsEventIdImgPost$RequestBodyFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is EventsEventIdImgPost$RequestBody &&
             (identical(other.file, file) ||
                 const DeepCollectionEquality().equals(other.file, file)));
   }
@@ -1144,14 +1494,14 @@ class EventEventIdImgPost$RequestBody {
       const DeepCollectionEquality().hash(file) ^ runtimeType.hashCode;
 }
 
-extension $EventEventIdImgPost$RequestBodyExtension
-    on EventEventIdImgPost$RequestBody {
-  EventEventIdImgPost$RequestBody copyWith({String? file}) {
-    return EventEventIdImgPost$RequestBody(file: file ?? this.file);
+extension $EventsEventIdImgPost$RequestBodyExtension
+    on EventsEventIdImgPost$RequestBody {
+  EventsEventIdImgPost$RequestBody copyWith({String? file}) {
+    return EventsEventIdImgPost$RequestBody(file: file ?? this.file);
   }
 
-  EventEventIdImgPost$RequestBody copyWithWrapped({Wrapped<String>? file}) {
-    return EventEventIdImgPost$RequestBody(
+  EventsEventIdImgPost$RequestBody copyWithWrapped({Wrapped<String>? file}) {
+    return EventsEventIdImgPost$RequestBody(
         file: (file != null ? file.value : this.file));
   }
 }

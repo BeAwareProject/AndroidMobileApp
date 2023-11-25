@@ -3,6 +3,7 @@ import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/generated_code/dependency_injection/injectable.dart';
 import 'package:be_aware_android/src/models/live.dart';
 import 'package:be_aware_android/src/services/events_service.dart';
+import 'package:be_aware_android/src/ui/common/navigations/settings_navigation_drawer.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/current_location_marker.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker_small.dart';
@@ -43,7 +44,6 @@ class _MapPageState extends State<MapPage> {
     Live(position: const LatLng(51.110026, 17.055876)),
     Live(position: const LatLng(51.109264, 17.063568)),
     Live(position: const LatLng(51.110139, 17.059891)),
-    Live(position: const LatLng(51.106771, 17.036558)),
     Live(position: const LatLng(51.113179, 17.026402)),
   ];
 
@@ -161,6 +161,7 @@ class _MapPageState extends State<MapPage> {
       appBar: AppBar(
         title: const Text('BeAware'),
       ),
+      drawer: const SettingsNavigationDrawer(),
       body: _initLocation == null
           ? const Center(child: CircularProgressIndicator())
           : Stack(

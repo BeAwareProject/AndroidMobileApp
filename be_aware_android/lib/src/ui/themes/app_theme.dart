@@ -6,10 +6,12 @@ class AppTheme {
 
   static ThemeData _theme() => ThemeData(
       colorScheme: const ColorScheme.dark().copyWith(
+        primary: Colors.blue,
         tertiaryContainer: Colors.deepOrange,
       ),
       appBarTheme: const AppBarTheme(
         color: Color.fromARGB(255, 19, 19, 19),
+        centerTitle: true,
       ),
       scaffoldBackgroundColor: const Color.fromARGB(255, 19, 19, 19),
       textTheme: const TextTheme(

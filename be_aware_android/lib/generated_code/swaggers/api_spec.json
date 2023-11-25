@@ -3,7 +3,7 @@
     "info": {
         "title": "BeAware Project",
         "description": "",
-        "version": "0.1.2"
+        "version": "0.1.5"
     },
     "servers": [
         {
@@ -23,10 +23,155 @@
         {
             "name": "Events API",
             "description": "Events that users can report. Only text (mandatory) and photos (additionally)."
+        },
+        {
+            "name": "Tags API",
+            "description": "CRUD for tags used in events"
         }
     ],
     "paths": {
-        "/event/{eventId}/": {
+        "/tags/{tagId}": {
+            "put": {
+                "tags": [
+                    "Tags API"
+                ],
+                "summary": "[AUTH REQUIRED] [ADMIN ONLY]",
+                "description": "Updates existing tag. Updating tags is only allowed for administrators.",
+                "operationId": "putTag",
+                "parameters": [
+                    {
+                        "name": "tagId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagForm"
+                            },
+                            "example": {
+                                "name": "fire",
+                                "langtag": "en"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "403": {
+                        "description": "Access denied. Modifying tags is only allowed for administrators.",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagDto"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "legacy_jwt_auth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Tags API"
+                ],
+                "summary": "[AUTH REQUIRED] [ADMIN ONLY]",
+                "description": "Deletes existing tag. Deleting tags is only allowed for administrators. ",
+                "operationId": "deleteTag",
+                "parameters": [
+                    {
+                        "name": "tagId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Resource deleted"
+                    },
+                    "403": {
+                        "description": "Access denied. Deleting tags is only allowed for administrators.",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Tag not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "legacy_jwt_auth": []
+                    }
+                ]
+            }
+        },
+        "/events/{eventId}": {
             "get": {
                 "tags": [
                     "Events API"
@@ -68,7 +213,8 @@
                 "security": [
                     {
                         "legacy_jwt_auth": []
-                    }
+                    },
+                    {}
                 ]
             },
             "put": {
@@ -76,7 +222,7 @@
                     "Events API"
                 ],
                 "summary": "[AUTH REQUIRED] [ADMIN ONLY]",
-                "description": "Updates existing event. Updateing events is only allowed for administrators.",
+                "description": "Updates existing event. Updating events is only allowed for administrators.",
                 "operationId": "putEvent",
                 "parameters": [
                     {
@@ -100,8 +246,8 @@
                     "required": true
                 },
                 "responses": {
-                    "401": {
-                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                    "404": {
+                        "description": "Event not found",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -110,8 +256,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Event not found",
+                    "403": {
+                        "description": "Access denied. Modifying events is only allowed for administrators.",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -130,8 +276,8 @@
                             }
                         }
                     },
-                    "403": {
-                        "description": "Access denied. Modifying events is only allowed for administrators.",
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -152,7 +298,7 @@
                     "Events API"
                 ],
                 "summary": "[AUTH REQUIRED] [ADMIN ONLY]",
-                "description": "Deletes existing event. Deleteing events is only allowed for administrators.",
+                "description": "Deletes existing event. Deleting events is only allowed for administrators.",
                 "operationId": "deleteEvent",
                 "parameters": [
                     {
@@ -166,6 +312,16 @@
                     }
                 ],
                 "responses": {
+                    "404": {
+                        "description": "Event not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
                     "204": {
                         "description": "Resource deleted"
                     },
@@ -179,18 +335,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Event not found",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetail"
-                                }
-                            }
-                        }
-                    },
                     "403": {
-                        "description": "Access denied. Deleteing events is only allowed for administrators.",
+                        "description": "Access denied. Deleting events is only allowed for administrators.",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -207,7 +353,7 @@
                 ]
             }
         },
-        "/users/": {
+        "/users": {
             "post": {
                 "tags": [
                     "Legacy authentication API"
@@ -247,46 +393,104 @@
                 }
             }
         },
-        "/event/{eventId}/img/": {
-            "post": {
+        "/tags": {
+            "get": {
                 "tags": [
-                    "Events API"
+                    "Tags API"
                 ],
-                "summary": "[AUTH REQUIRED] [OWNERSHIP GUARD]",
-                "description": "Adds image for event. If you are not an administrator, it is possible to add a photo only to the event you authored.",
-                "operationId": "postImageForEvent",
+                "operationId": "getTags",
                 "parameters": [
                     {
-                        "name": "eventId",
-                        "in": "path",
-                        "required": true,
+                        "name": "page",
+                        "in": "query",
+                        "description": "Zero-based page index (0..N)",
+                        "required": false,
                         "schema": {
+                            "minimum": 0,
                             "type": "integer",
-                            "format": "int64"
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The size of the page to be returned",
+                        "required": false,
+                        "schema": {
+                            "minimum": 1,
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "default": [
+                                "name,ASC"
+                            ]
                         }
                     }
                 ],
-                "requestBody": {
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "required": [
-                                    "file"
-                                ],
-                                "type": "object",
-                                "properties": {
-                                    "file": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    }
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageTagDto"
                                 }
                             }
                         }
                     }
                 },
+                "security": [
+                    {
+                        "legacy_jwt_auth": []
+                    },
+                    {}
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Tags API"
+                ],
+                "summary": "[AUTH REQUIRED] [ADMIN ONLY]",
+                "description": "Creates new tag. Creating tags is only allowed for administrators.",
+                "operationId": "postTag",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TagForm"
+                            },
+                            "example": {
+                                "name": "fire",
+                                "langtag": "en"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
-                    "403": {
-                        "description": "Access denied. If you are not an administrator, it is possible to add a photo only to the event you authored.",
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagDto"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "This tag already exists.",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -295,8 +499,8 @@
                             }
                         }
                     },
-                    "415": {
-                        "description": "Used file with invalid media type. Please use image/webp.",
+                    "403": {
+                        "description": "Access denied. Creating tags is only allowed for administrators.",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -314,29 +518,6 @@
                                 }
                             }
                         }
-                    },
-                    "409": {
-                        "description": "This image already exists. Each event can have only one image.",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetail"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Event not found",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetail"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Created"
                     }
                 },
                 "security": [
@@ -346,7 +527,7 @@
                 ]
             }
         },
-        "/event/": {
+        "/events": {
             "get": {
                 "tags": [
                     "Events API"
@@ -454,7 +635,8 @@
                 "security": [
                     {
                         "legacy_jwt_auth": []
-                    }
+                    },
+                    {}
                 ]
             },
             "post": {
@@ -475,22 +657,22 @@
                     "required": true
                 },
                 "responses": {
-                    "401": {
-                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetail"
-                                }
-                            }
-                        }
-                    },
                     "201": {
                         "description": "Created",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/EventDto"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
                                 }
                             }
                         }
@@ -503,7 +685,106 @@
                 ]
             }
         },
-        "/auth/login/": {
+        "/events/{eventId}/img": {
+            "post": {
+                "tags": [
+                    "Events API"
+                ],
+                "summary": "[AUTH REQUIRED] [OWNERSHIP GUARD]",
+                "description": "Adds image for event. If you are not an administrator, it is possible to add a photo only to the event you authored.",
+                "operationId": "postImageForEvent",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "404": {
+                        "description": "Event not found",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "This image already exists. Each event can have only one image.",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Access denied. If you are not an administrator, it is possible to add a photo only to the event you authored.",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "415": {
+                        "description": "Used file with invalid media type. Please use image/webp.",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "legacy_jwt_auth": []
+                    }
+                ]
+            }
+        },
+        "/auth/login": {
             "post": {
                 "tags": [
                     "Legacy authentication API"
@@ -521,22 +802,22 @@
                     "required": true
                 },
                 "responses": {
-                    "201": {
-                        "description": "Credentials ok, authentication tokens returned",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/LoginResponse"
-                                }
-                            }
-                        }
-                    },
                     "401": {
                         "description": "Bad credentials, try again",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Credentials ok, authentication tokens returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
                                 }
                             }
                         }
@@ -550,22 +831,22 @@
                 "summary": "[REFRESH TOKEN REQUIRED] refreshes and returns refresh and access tokens",
                 "operationId": "refreshToken",
                 "responses": {
-                    "401": {
-                        "description": "Invalid refresh token. Please note that the access token is not allowed here, even if it is still active.",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetail"
-                                }
-                            }
-                        }
-                    },
                     "200": {
                         "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid refresh token. Please note that the access token is not allowed here, even if it is still active.",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
                                 }
                             }
                         }
@@ -578,7 +859,7 @@
                 ]
             }
         },
-        "/event/{eventId}/img.webp": {
+        "/events/{eventId}/img.webp": {
             "get": {
                 "tags": [
                     "Events API"
@@ -596,12 +877,6 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "image/webp": {}
-                        }
-                    },
                     "404": {
                         "description": "Event not found or event has no image",
                         "content": {
@@ -611,16 +886,23 @@
                                 }
                             }
                         }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "image/webp": {}
+                        }
                     }
                 },
                 "security": [
                     {
                         "legacy_jwt_auth": []
-                    }
+                    },
+                    {}
                 ]
             }
         },
-        "/auth/say_hello/": {
+        "/auth/say_hello": {
             "get": {
                 "tags": [
                     "Legacy authentication API"
@@ -654,58 +936,30 @@
                 "security": [
                     {
                         "legacy_jwt_auth": []
-                    }
+                    },
+                    {}
                 ]
             }
         }
     },
     "components": {
         "schemas": {
-            "EventForm": {
+            "TagForm": {
                 "required": [
-                    "casualties",
-                    "deadly",
-                    "description",
-                    "location"
+                    "langtag",
+                    "name"
                 ],
                 "type": "object",
                 "properties": {
-                    "location": {
-                        "$ref": "#/components/schemas/Location"
-                    },
-                    "description": {
-                        "maxLength": 255,
-                        "minLength": 10,
+                    "name": {
+                        "maxLength": 63,
+                        "minLength": 3,
                         "type": "string"
                     },
-                    "casualties": {
-                        "type": "boolean"
-                    },
-                    "deadly": {
-                        "type": "boolean"
-                    }
-                }
-            },
-            "Location": {
-                "required": [
-                    "latitude",
-                    "longitude"
-                ],
-                "type": "object",
-                "properties": {
-                    "latitude": {
-                        "maximum": 90.0000000,
-                        "exclusiveMaximum": false,
-                        "minimum": -90.0000000,
-                        "exclusiveMinimum": false,
-                        "type": "number"
-                    },
-                    "longitude": {
-                        "maximum": 180.0000000,
-                        "exclusiveMaximum": false,
-                        "minimum": -180.0000000,
-                        "exclusiveMinimum": false,
-                        "type": "number"
+                    "langtag": {
+                        "maxLength": 2147483647,
+                        "minLength": 2,
+                        "type": "string"
                     }
                 }
             },
@@ -738,14 +992,92 @@
                     }
                 }
             },
+            "TagDto": {
+                "required": [
+                    "id",
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "name": {
+                        "maxLength": 63,
+                        "minLength": 10,
+                        "type": "string"
+                    }
+                }
+            },
+            "EventForm": {
+                "required": [
+                    "deadly",
+                    "description",
+                    "location",
+                    "tagIds"
+                ],
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "$ref": "#/components/schemas/Location"
+                    },
+                    "description": {
+                        "maxLength": 255,
+                        "minLength": 10,
+                        "type": "string"
+                    },
+                    "casualties": {
+                        "type": "boolean"
+                    },
+                    "deadly": {
+                        "type": "boolean"
+                    },
+                    "tagIds": {
+                        "maxItems": 3,
+                        "minItems": 1,
+                        "uniqueItems": true,
+                        "type": "array",
+                        "items": {
+                            "maximum": 3,
+                            "minimum": 1,
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                }
+            },
+            "Location": {
+                "required": [
+                    "latitude",
+                    "longitude"
+                ],
+                "type": "object",
+                "properties": {
+                    "latitude": {
+                        "maximum": 90.0000000,
+                        "exclusiveMaximum": false,
+                        "minimum": -90.0000000,
+                        "exclusiveMinimum": false,
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "maximum": 180.0000000,
+                        "exclusiveMaximum": false,
+                        "minimum": -180.0000000,
+                        "exclusiveMinimum": false,
+                        "type": "number"
+                    }
+                }
+            },
             "EventDto": {
                 "required": [
-                    "casualties",
                     "deadly",
                     "description",
                     "hasImage",
                     "id",
                     "location",
+                    "tags",
                     "time",
                     "userDto"
                 ],
@@ -781,6 +1113,12 @@
                     },
                     "imageUrl": {
                         "type": "string"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TagDto"
+                        }
                     }
                 }
             },
@@ -840,7 +1178,7 @@
                     }
                 }
             },
-            "PageEventDto": {
+            "PageTagDto": {
                 "type": "object",
                 "properties": {
                     "totalPages": {
@@ -861,7 +1199,7 @@
                     "content": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/EventDto"
+                            "$ref": "#/components/schemas/TagDto"
                         }
                     },
                     "number": {
@@ -922,6 +1260,52 @@
                         "type": "boolean"
                     },
                     "unsorted": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageEventDto": {
+                "type": "object",
+                "properties": {
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EventDto"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
                         "type": "boolean"
                     }
                 }

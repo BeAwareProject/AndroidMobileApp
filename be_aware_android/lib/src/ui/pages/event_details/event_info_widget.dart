@@ -19,8 +19,12 @@ class EventInfoWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 child: Container(
+                  constraints: const BoxConstraints(
+                    maxWidth: 320,
+                  ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
@@ -29,6 +33,8 @@ class EventInfoWidget extends StatelessWidget {
                   ),
                   child: Text(
                     event.description,
+                    overflow: TextOverflow.ellipsis, // Add this line
+                    maxLines: 1,
                     style: Theme.of(context)
                         .textTheme
                         .titleLarge
@@ -63,21 +69,26 @@ class EventInfoWidget extends StatelessWidget {
                   "Casualties:",
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                event.casualties
+                event.casualties == null
                     ? Text(
-                        "YES",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(color: Colors.red),
+                        "No data",
+                        style: Theme.of(context).textTheme.titleMedium,
                       )
-                    : Text(
-                        "NO",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineSmall
-                            ?.copyWith(color: Colors.green),
-                      ),
+                    : event.casualties!
+                        ? Text(
+                            "YES",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(color: Colors.red),
+                          )
+                        : Text(
+                            "NO",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(color: Colors.green),
+                          ),
               ],
             ),
           ),
@@ -114,7 +125,7 @@ class EventInfoWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Reported:",
+                  "Reported at:",
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 Text(
