@@ -30,4 +30,19 @@ class EventsService {
       throw ServerException(status: response.statusCode);
     }
   }
+
+  Future<PageTagDto> getAllTags({
+    int page = 0,
+    pageSize = 100,
+  }) async {
+    Response<PageTagDto> response = await _api.authClient.tagsGet(
+      page: page,
+      size: pageSize,
+    );
+    if (response.statusCode == 200) {
+      return response.body!;
+    } else {
+      throw ServerException(status: response.statusCode);
+    }
+  }
 }

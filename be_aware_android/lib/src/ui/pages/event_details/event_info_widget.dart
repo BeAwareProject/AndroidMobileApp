@@ -11,7 +11,8 @@ class EventInfoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      color: const Color.fromARGB(255, 33, 33, 33),
       height: 250,
       child: Column(
         children: [
@@ -72,7 +73,7 @@ class EventInfoWidget extends StatelessWidget {
                 event.casualties == null
                     ? Text(
                         "No data",
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(context).textTheme.headlineSmall,
                       )
                     : event.casualties!
                         ? Text(

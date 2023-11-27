@@ -31,15 +31,7 @@ class AuthService {
   }
 
   Future<LoginResponse> refreshAccessToken() async {
-    Response<LoginResponse> response = await _api.authClient.authLoginPatch();
-    if (response.statusCode == 200) {
-      await _authRepo.saveLoginResponse(response.body!);
-      return response.body!;
-    } else if (response.statusCode == 401 || response.statusCode == 400) {
-      throw UnauthorizedException();
-    } else {
-      throw ServerException(status: response.statusCode);
-    }
+    return _api.refreshAccessToken();
   }
 
   Future<void> register(UserForm userRegisterForm) async {

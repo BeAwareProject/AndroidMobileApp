@@ -13,6 +13,7 @@ import 'package:be_aware_android/src/ui/pages/map/widgets/layers_bottom_sheet.da
 import 'package:be_aware_android/src/ui/pages/map/widgets/search_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -243,16 +244,7 @@ class _MapPageState extends State<MapPage> {
                               const Color.fromARGB(255, 195, 65, 25),
                           foregroundColor: Colors.white,
                           onPressed: () {
-                            LatLngBounds bounds =
-                                _mapController.camera.visibleBounds;
-                            setState(() async {
-                              _events = (await _eventsService.getEvents(
-                                bounds.northWest, bounds.southEast,
-                                //const LatLng(51.172751, 16.966052),
-                                //const LatLng(51.025937, 17.173175),
-                              ))
-                                  .content!;
-                            });
+                            context.push("/event/post");
                           },
                           child: const Icon(
                             Icons.report_outlined,

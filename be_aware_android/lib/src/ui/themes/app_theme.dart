@@ -5,41 +5,42 @@ class AppTheme {
   static ThemeData get theme => _theme();
 
   static ThemeData _theme() => ThemeData(
-      colorScheme: const ColorScheme.dark().copyWith(
-        primary: Colors.blue,
-        tertiaryContainer: Colors.deepOrange,
-      ),
-      appBarTheme: const AppBarTheme(
-        color: Color.fromARGB(255, 19, 19, 19),
-        centerTitle: true,
-      ),
-      scaffoldBackgroundColor: const Color.fromARGB(255, 19, 19, 19),
-      textTheme: const TextTheme(
-        headlineSmall: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
+        colorScheme: const ColorScheme.dark().copyWith(
+          primary: Colors.blue,
+          tertiaryContainer: Colors.deepOrange,
         ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: const Color.fromARGB(255, 195, 65, 25),
-          textStyle: const TextStyle(
-            fontSize: 21,
-            fontWeight: FontWeight.w600,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              45.0,
-            ), // Set the circular border radius here
-          ),
-          padding: const EdgeInsets.symmetric(
-            vertical: 16,
+        appBarTheme: const AppBarTheme(
+          color: Color.fromARGB(255, 19, 19, 19),
+          centerTitle: true,
+        ),
+        scaffoldBackgroundColor: const Color.fromARGB(255, 19, 19, 19),
+        textTheme: const TextTheme(
+          headlineSmall: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: Colors.white,
-      ));
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: const Color.fromARGB(255, 195, 65, 25),
+            textStyle: const TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.w600,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                45.0,
+              ), // Set the circular border radius here
+            ),
+            padding: const EdgeInsets.symmetric(
+              vertical: 16,
+            ),
+          ),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Colors.white,
+        ),
+      );
 }

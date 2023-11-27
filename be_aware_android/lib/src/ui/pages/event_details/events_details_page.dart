@@ -1,6 +1,7 @@
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/src/ui/pages/event_details/event_info_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class EventDetailsPage extends StatefulWidget {
   const EventDetailsPage({
@@ -15,9 +16,6 @@ class EventDetailsPage extends StatefulWidget {
 }
 
 class _StateEventDetailsPage extends State<EventDetailsPage> {
-  bool _showBottomSheet = true;
-  final TransformationController _controller = TransformationController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,36 +24,30 @@ class _StateEventDetailsPage extends State<EventDetailsPage> {
         centerTitle: true,
       ),
       body: widget.event.imageUrl != null
-          ? InteractiveViewer(
-              onInteractionStart: (details) {
-                setState(() {
-                  _showBottomSheet = false;
-                });
-              },
-              onInteractionEnd: (details) {
-                setState(() {
-                  _showBottomSheet = true;
-                });
-                _controller.value = Matrix4.identity();
-              },
-              transformationController: _controller,
-              minScale: 0.1,
-              maxScale: 3,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [Image.network(widget.event.imageUrl!)]),
+          ? Center(
+              child: InkWell(
+                  onTap: () {
+                    context.push(
+                      "/event/image",
+                      extra: widget.event.imageUrl!,
+                    );
+                  },
+                  child: Image.network(widget.event.imageUrl!)),
             )
-          : const Column(
-              children: [
-                SizedBox(height: 220),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [Text("No image")],
-                ),
-              ],
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.no_photography_outlined, size: 35),
+                  const SizedBox(height: 5),
+                  Text(
+                    "No image",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
             ),
-      bottomSheet:
-          _showBottomSheet ? EventInfoWidget(event: widget.event) : null,
+      bottomNavigationBar: EventInfoWidget(event: widget.event),
     );
   }
 }

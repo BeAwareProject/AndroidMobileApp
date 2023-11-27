@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
+import 'package:be_aware_android/src/exceptions/server_exception.dart';
 import 'package:be_aware_android/src/exceptions/unauthorized_exception.dart';
 import 'package:be_aware_android/src/repos/auth_repo.dart';
+import 'package:be_aware_android/src/routers/app_router.dart';
 import 'package:chopper/chopper.dart';
 import 'package:injectable/injectable.dart';
 
@@ -14,13 +16,10 @@ class Api {
   ApiSpec get authClient => ApiSpec.create(
         client: ChopperClient(
           baseUrl: Uri.parse(_baseUrl),
-          services: [
-            ApiSpec.create(),
-          ],
-          interceptors: [
-            _AuthInterceptor(_authRepo),
-          ],
+          services: [ApiSpec.create()],
+          interceptors: [_AuthInterceptor(_authRepo)],
           converter: $JsonSerializableConverter(),
+          authenticator: _TokenAuthenticator(refreshAccessToken),
         ),
       );
 
@@ -29,6 +28,18 @@ class Api {
   );
 
   ApiSpec get noAuthClient => _noAuthClient;
+
+  Future<LoginResponse> refreshAccessToken() async {
+    Response<LoginResponse> response = await authClient.authLoginPatch();
+    if (response.statusCode == 200) {
+      await _authRepo.saveLoginResponse(response.body!);
+      return response.body!;
+    } else if (response.statusCode == 401 || response.statusCode == 400) {
+      throw UnauthorizedException();
+    } else {
+      throw ServerException(status: response.statusCode);
+    }
+  }
 }
 
 class _AuthInterceptor implements RequestInterceptor {
@@ -59,5 +70,30 @@ class _AuthInterceptor implements RequestInterceptor {
         throw UnauthorizedException();
       }
     }
+  }
+}
+
+class _TokenAuthenticator implements Authenticator {
+  _TokenAuthenticator(this._refreshAccessToken);
+
+  final Future<LoginResponse> Function() _refreshAccessToken;
+
+  @override
+  FutureOr<Request?> authenticate(Request request, Response<dynamic> response,
+      [Request? originalRequest]) async {
+    if (response.statusCode == 401) {
+      try {
+        LoginResponse loginResponse = await _refreshAccessToken();
+        final newRequest = applyHeader(
+          originalRequest ?? request,
+          'Authorization',
+          'Bearer ${loginResponse.accessToken}',
+        );
+        return newRequest;
+      } on UnauthorizedException catch (_) {
+        appRouter.go('/login');
+      }
+    }
+    return null;
   }
 }

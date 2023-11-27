@@ -1,5 +1,7 @@
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
+import 'package:be_aware_android/src/ui/pages/event_details/event_image_page.dart';
 import 'package:be_aware_android/src/ui/pages/event_details/events_details_page.dart';
+import 'package:be_aware_android/src/ui/pages/event_post/event_post_page.dart';
 import 'package:be_aware_android/src/ui/pages/login/auto_login_page.dart';
 import 'package:be_aware_android/src/ui/pages/login/login_page.dart';
 import 'package:be_aware_android/src/ui/pages/login/register_page.dart';
@@ -30,6 +32,26 @@ final appRouter = GoRouter(
           child: EventDetailsPage(
             event: state.extra as EventDto,
           ),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/event/image',
+      pageBuilder: (context, state) {
+        return NoTransitionPage(
+          key: state.pageKey,
+          child: EventImagePage(
+            imageUrl: state.extra as String,
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/event/post',
+      pageBuilder: (context, state) {
+        return NoTransitionPage(
+          key: state.pageKey,
+          child: EventPostPage(),
         );
       },
     ),
