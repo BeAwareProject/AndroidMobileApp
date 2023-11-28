@@ -1,8 +1,8 @@
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:flutter/material.dart';
 
-class EventTag extends StatelessWidget {
-  const EventTag({
+class EventSelectableTag extends StatelessWidget {
+  const EventSelectableTag({
     super.key,
     required this.tag,
     required this.selected,

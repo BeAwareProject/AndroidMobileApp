@@ -58,6 +58,7 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    _checkLocalizationPermission();
     _locationTimer = Timer.periodic(
       const Duration(seconds: 5),
       (_) {
@@ -80,18 +81,19 @@ class _MapPageState extends State<MapPage> {
     _mapController.dispose();
   }
 
+  Future<void> _checkLocalizationPermission() async {
+    if (!(await Permission.location.isGranted)) {
+      await Permission.location.request();
+    }
+  }
+
   Future<LatLng?> _getCurrentLocation() async {
-    var status = await Permission.location.request();
-    if (status.isGranted) {
-      try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium,
-        );
-        return LatLng(position.latitude, position.longitude);
-      } catch (e) {
-        return null;
-      }
-    } else {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+      );
+      return LatLng(position.latitude, position.longitude);
+    } catch (e) {
       return null;
     }
   }

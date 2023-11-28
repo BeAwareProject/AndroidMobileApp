@@ -11,11 +11,11 @@ import 'package:injectable/injectable.dart';
 class Api {
   Api(this._authRepo);
   final AuthRepo _authRepo;
-  static const String _baseUrl = "https://beawareproject.com/api/";
+  static const String baseUrl = "https://beawareproject.com/api/";
 
   ApiSpec get authClient => ApiSpec.create(
         client: ChopperClient(
-          baseUrl: Uri.parse(_baseUrl),
+          baseUrl: Uri.parse(baseUrl),
           services: [ApiSpec.create()],
           interceptors: [_AuthInterceptor(_authRepo)],
           converter: $JsonSerializableConverter(),
@@ -24,7 +24,7 @@ class Api {
       );
 
   final ApiSpec _noAuthClient = ApiSpec.create(
-    baseUrl: Uri.parse(Api._baseUrl),
+    baseUrl: Uri.parse(Api.baseUrl),
   );
 
   ApiSpec get noAuthClient => _noAuthClient;

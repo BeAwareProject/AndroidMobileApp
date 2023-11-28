@@ -45,4 +45,23 @@ class EventsService {
       throw ServerException(status: response.statusCode);
     }
   }
+
+  Future<EventDto> postEvent(EventForm event) async {
+    Response<EventDto> response = await _api.authClient.eventsPost(body: event);
+    if (response.statusCode == 201) {
+      return response.body!;
+    } else {
+      throw ServerException(status: response.statusCode);
+    }
+  }
+
+  Future<void> postEventImage(int eventId, List<int> file) async {
+    Response<dynamic> response = await _api.authClient
+        .eventsEventIdImgPost(eventId: eventId, file: file);
+    if (response.statusCode == 204) {
+      return;
+    } else {
+      throw ServerException(status: response.statusCode);
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
+import 'package:be_aware_android/src/ui/pages/event_details/widgets/event_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -13,10 +14,10 @@ class EventInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color.fromARGB(255, 33, 33, 33),
-      height: 250,
+      height: 230,
       child: Column(
         children: [
-          Row(
+          /*Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
@@ -44,6 +45,18 @@ class EventInfoWidget extends StatelessWidget {
                 ),
               ),
             ],
+          ),*/
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: event.tags
+                  .map((tag) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: EventTag(tag: tag),
+                      ))
+                  .toList(),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

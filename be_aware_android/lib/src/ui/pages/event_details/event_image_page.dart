@@ -13,7 +13,7 @@ class EventImagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Event image"),
+        title: const Text("Photo"),
       ),
       body: InteractiveViewer(
         onInteractionEnd: (details) {
