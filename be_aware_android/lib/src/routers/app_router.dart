@@ -7,6 +7,7 @@ import 'package:be_aware_android/src/ui/pages/login/auto_login_page.dart';
 import 'package:be_aware_android/src/ui/pages/login/login_page.dart';
 import 'package:be_aware_android/src/ui/pages/login/register_page.dart';
 import 'package:be_aware_android/src/ui/pages/map/map_page.dart';
+import 'package:be_aware_android/src/ui/pages/stream_details/stream_watch_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -63,6 +64,17 @@ final appRouter = GoRouter(
           key: state.pageKey,
           child: EventTakePhotoPage(
               eventId: int.parse(state.pathParameters['eventId'] as String)),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/stream',
+      pageBuilder: (context, state) {
+        return NoTransitionPage(
+          key: state.pageKey,
+          child: StreamWatchPage(
+            stream: state.extra as StreamDto,
+          ),
         );
       },
     ),

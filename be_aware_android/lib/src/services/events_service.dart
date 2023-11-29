@@ -1,9 +1,13 @@
+import 'dart:io';
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/src/exceptions/server_exception.dart';
 import 'package:be_aware_android/src/services/api.dart';
 import 'package:chopper/chopper.dart';
 import 'package:injectable/injectable.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:path/path.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:http/http.dart' as http;
 
 @injectable
 class EventsService {
@@ -55,9 +59,27 @@ class EventsService {
     }
   }
 
-  Future<void> postEventImage(int eventId, List<int> file) async {
-    Response<dynamic> response = await _api.authClient
-        .eventsEventIdImgPost(eventId: eventId, file: file);
+  Future<void> postEventImage(int eventId, String filePath) async {
+    var request = http.MultipartRequest(
+        'POST', Uri.parse("${Api.baseUrl}events/$eventId/img"));
+
+    var file = File(filePath);
+    var stream = http.ByteStream(Stream.castFrom(file.openRead()));
+    var length = await file.length();
+
+    var multipartFile = http.MultipartFile(
+      'file',
+      stream,
+      length,
+      filename: basename(filePath),
+      contentType: MediaType('image', 'webp'),
+    );
+
+    request.files.add(multipartFile);
+    request.headers
+        .addAll({'Authorization': 'Bearer ${_api.getAccessToken()}'});
+    var responseStream = await request.send();
+    http.Response response = await http.Response.fromStream(responseStream);
     if (response.statusCode == 204) {
       return;
     } else {

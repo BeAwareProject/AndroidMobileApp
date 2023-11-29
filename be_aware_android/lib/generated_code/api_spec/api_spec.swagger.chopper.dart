@@ -129,6 +129,48 @@ class _$ApiSpec extends ApiSpec {
   }
 
   @override
+  Future<Response<PageStreamDto>> _streamsGet({
+    int? page,
+    int? size,
+    List<String>? sort,
+    required num? rectangleStartLatitude,
+    required num? rectangleStartLongitude,
+    required num? rectangleEndLatitude,
+    required num? rectangleEndLongitude,
+  }) {
+    final Uri $url = Uri.parse('/streams');
+    final Map<String, dynamic> $params = <String, dynamic>{
+      'page': page,
+      'size': size,
+      'sort': sort,
+      'rectangleStartLatitude': rectangleStartLatitude,
+      'rectangleStartLongitude': rectangleStartLongitude,
+      'rectangleEndLatitude': rectangleEndLatitude,
+      'rectangleEndLongitude': rectangleEndLongitude,
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      parameters: $params,
+    );
+    return client.send<PageStreamDto, PageStreamDto>($request);
+  }
+
+  @override
+  Future<Response<StreamPublishDto>> _streamsPost({required StreamForm? body}) {
+    final Uri $url = Uri.parse('/streams');
+    final $body = body;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<StreamPublishDto, StreamPublishDto>($request);
+  }
+
+  @override
   Future<Response<PageEventDto>> _eventsGet({
     int? page,
     int? size,

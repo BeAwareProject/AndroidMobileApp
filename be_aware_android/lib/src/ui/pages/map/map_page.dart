@@ -3,12 +3,13 @@ import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/generated_code/dependency_injection/injectable.dart';
 import 'package:be_aware_android/src/models/live.dart';
 import 'package:be_aware_android/src/services/events_service.dart';
+import 'package:be_aware_android/src/services/streams_service.dart';
 import 'package:be_aware_android/src/ui/common/navigations/settings_navigation_drawer.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/current_location_marker.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker_small.dart';
-import 'package:be_aware_android/src/ui/pages/map/pointers/live_marker.dart';
-import 'package:be_aware_android/src/ui/pages/map/pointers/live_marker_small.dart';
+import 'package:be_aware_android/src/ui/pages/map/pointers/stream_marker.dart';
+import 'package:be_aware_android/src/ui/pages/map/pointers/stream_marker_small.dart';
 import 'package:be_aware_android/src/ui/pages/map/widgets/layers_bottom_sheet.dart';
 import 'package:be_aware_android/src/ui/pages/map/widgets/search_container.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ class _MapPageState extends State<MapPage> {
   final Key _mapKey = GlobalKey();
   final MapController _mapController = MapController();
   final EventsService _eventsService = getIt();
+  final StreamsService _streamsService = getIt();
 
   late Timer _locationTimer;
   LatLng? _currentLocation;
@@ -37,23 +39,8 @@ class _MapPageState extends State<MapPage> {
 
   bool _showSmallMarkers = false;
   List<EventDto> _events = [];
-  StreamSubscription<void>? _lastEventsUpdateAction;
-
-  final List<Live> _lives = [
-    Live(position: const LatLng(51.073716, 16.990467)),
-    Live(position: const LatLng(51.073897, 16.997748)),
-    Live(position: const LatLng(51.110026, 17.055876)),
-    Live(position: const LatLng(51.109264, 17.063568)),
-    Live(position: const LatLng(51.110139, 17.059891)),
-    Live(position: const LatLng(51.113179, 17.026402)),
-  ];
-
-  /*final List<Event> _events = [
-    Event(position: const LatLng(51.070985, 16.991848)),
-    Event(position: const LatLng(51.108462, 17.056878)),
-    Event(position: const LatLng(51.111634, 17.056981)),
-    Event(position: const LatLng(51.112122, 17.040233)),
-  ];*/
+  List<StreamDto> _streams = [];
+  StreamSubscription<void>? _lastMapItemsUpdateAction;
 
   @override
   void initState() {
@@ -128,13 +115,14 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _updatePointers() {
-    if (_lastEventsUpdateAction != null) {
-      _lastEventsUpdateAction!.cancel();
+    if (_lastMapItemsUpdateAction != null) {
+      _lastMapItemsUpdateAction!.cancel();
     }
-    _lastEventsUpdateAction = Future.delayed(
+    _lastMapItemsUpdateAction = Future.delayed(
       const Duration(milliseconds: 500),
     ).asStream().listen((_) {
       _getAndSetNewEventsForMapBounds();
+      _getAndSetNewStreamsForMapBounds();
     });
   }
 
@@ -146,6 +134,17 @@ class _MapPageState extends State<MapPage> {
     );
     setState(() {
       _events = pageEvent.content != null ? pageEvent.content! : [];
+    });
+  }
+
+  Future<void> _getAndSetNewStreamsForMapBounds() async {
+    LatLngBounds visibleMapBounds = _mapController.camera.visibleBounds;
+    PageStreamDto pageStream = await _streamsService.getStreams(
+      visibleMapBounds.northWest,
+      visibleMapBounds.southEast,
+    );
+    setState(() {
+      _streams = pageStream.content != null ? pageStream.content! : [];
     });
   }
 
@@ -180,14 +179,16 @@ class _MapPageState extends State<MapPage> {
                   children: [
                     TileLayer(
                       urlTemplate:
-                          'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     ),
-                    _lives.isNotEmpty
+                    _streams.isNotEmpty
                         ? MarkerLayer(
-                            markers: _lives
-                                .map((live) => _showSmallMarkers
-                                    ? LiveMarkerSmall(position: live.position)
-                                    : LiveMarker(position: live.position))
+                            markers: _streams
+                                .map(
+                                  (stream) => _showSmallMarkers
+                                      ? StreamMarkerSmall(stream: stream)
+                                      : StreamMarker(stream: stream),
+                                )
                                 .toList(),
                           )
                         : const SizedBox(),

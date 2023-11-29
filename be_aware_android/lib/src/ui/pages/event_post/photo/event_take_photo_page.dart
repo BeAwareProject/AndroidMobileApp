@@ -1,13 +1,19 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:be_aware_android/generated_code/dependency_injection/injectable.dart';
+import 'package:be_aware_android/src/exceptions/server_exception.dart';
 import 'package:be_aware_android/src/providers/app_provider.dart';
 import 'package:be_aware_android/src/services/events_service.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:toastification/toastification.dart';
 
 class EventTakePhotoPage extends StatefulWidget {
   EventTakePhotoPage({
@@ -62,12 +68,36 @@ class _EventTakePhotoPageState extends State<EventTakePhotoPage> {
   }
 
   Future<void> _postImage() async {
-    var compressedBytes = await FlutterImageCompress.compressWithFile(
+    final dir = await getTemporaryDirectory();
+    final targetPath = path.join(dir.path, "temp_compressed.webp");
+
+    await FlutterImageCompress.compressAndGetFile(
       _image!.path,
+      targetPath,
       format: CompressFormat.webp,
-      quality: 1,
+      quality: 20,
     );
-    await widget.eventsService.postEventImage(widget.eventId, compressedBytes!);
+    try {
+      await widget.eventsService.postEventImage(widget.eventId, targetPath);
+      _showToast("Event added", ToastificationType.success);
+      context.go("/map");
+    } on ServerException catch (_) {
+      _showToast("An error occured", ToastificationType.error);
+      context.go("/map");
+    }
+  }
+
+  void _showToast(String title, ToastificationType type) {
+    toastification.show(
+      context: context,
+      title: title,
+      showProgressBar: false,
+      type: type,
+      style: ToastificationStyle.fillColored,
+      alignment: Alignment.topRight,
+      margin: const EdgeInsets.only(top: 0, left: 10, right: 20),
+      autoCloseDuration: const Duration(seconds: 3),
+    );
   }
 
   @override
@@ -114,6 +144,8 @@ class _EventTakePhotoPageState extends State<EventTakePhotoPage> {
                               ),
                             ),
                             onPressed: () {
+                              _showToast(
+                                  "Event added", ToastificationType.success);
                               context.go("/map");
                             },
                             child: const Text(

@@ -40,6 +40,10 @@ class Api {
       throw ServerException(status: response.statusCode);
     }
   }
+
+  String? getAccessToken() {
+    return _authRepo.accessToken;
+  }
 }
 
 class _AuthInterceptor implements RequestInterceptor {

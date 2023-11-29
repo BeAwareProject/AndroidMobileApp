@@ -3,7 +3,7 @@
     "info": {
         "title": "BeAware Project",
         "description": "",
-        "version": "0.1.5"
+        "version": "0.2.0-SNAPSHOT"
     },
     "servers": [
         {
@@ -16,6 +16,10 @@
         }
     ],
     "tags": [
+        {
+            "name": "Streams API",
+            "description": "Streaming events that user can report."
+        },
         {
             "name": "Legacy authentication API",
             "description": "There you can get the legacy (self-generated) JWTs, and check if authentication works."
@@ -64,8 +68,8 @@
                     "required": true
                 },
                 "responses": {
-                    "403": {
-                        "description": "Access denied. Modifying tags is only allowed for administrators.",
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -94,8 +98,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                    "403": {
+                        "description": "Access denied. Modifying tags is only allowed for administrators.",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -133,8 +137,8 @@
                     "204": {
                         "description": "Resource deleted"
                     },
-                    "403": {
-                        "description": "Access denied. Deleting tags is only allowed for administrators.",
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -153,8 +157,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                    "403": {
+                        "description": "Access denied. Deleting tags is only allowed for administrators.",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -246,8 +250,8 @@
                     "required": true
                 },
                 "responses": {
-                    "404": {
-                        "description": "Event not found",
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -256,8 +260,8 @@
                             }
                         }
                     },
-                    "403": {
-                        "description": "Access denied. Modifying events is only allowed for administrators.",
+                    "404": {
+                        "description": "Event not found",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -276,8 +280,8 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                    "403": {
+                        "description": "Access denied. Modifying events is only allowed for administrators.",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -312,8 +316,11 @@
                     }
                 ],
                 "responses": {
-                    "404": {
-                        "description": "Event not found",
+                    "204": {
+                        "description": "Resource deleted"
+                    },
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -322,11 +329,8 @@
                             }
                         }
                     },
-                    "204": {
-                        "description": "Resource deleted"
-                    },
-                    "401": {
-                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                    "404": {
+                        "description": "Event not found",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -479,18 +483,8 @@
                     "required": true
                 },
                 "responses": {
-                    "201": {
-                        "description": "Created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/TagDto"
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "This tag already exists.",
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -509,12 +503,181 @@
                             }
                         }
                     },
+                    "409": {
+                        "description": "This tag already exists.",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TagDto"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "legacy_jwt_auth": []
+                    }
+                ]
+            }
+        },
+        "/streams": {
+            "get": {
+                "tags": [
+                    "Streams API"
+                ],
+                "description": "Similar to GET /events, but for currently broadcasting live streams",
+                "operationId": "getStreams",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Zero-based page index (0..N)",
+                        "required": false,
+                        "schema": {
+                            "minimum": 0,
+                            "type": "integer",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "description": "The size of the page to be returned",
+                        "required": false,
+                        "schema": {
+                            "minimum": 1,
+                            "type": "integer",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "default": [
+                                "time,DESC"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "rectangleStartLatitude",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "maximum": 90.0,
+                            "exclusiveMaximum": false,
+                            "minimum": -90.0,
+                            "exclusiveMinimum": false,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "rectangleStartLongitude",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "maximum": 180.0,
+                            "exclusiveMaximum": false,
+                            "minimum": -180.0,
+                            "exclusiveMinimum": false,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "rectangleEndLatitude",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "maximum": 90.0,
+                            "exclusiveMaximum": false,
+                            "minimum": -90.0,
+                            "exclusiveMinimum": false,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "rectangleEndLongitude",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "maximum": 180.0,
+                            "exclusiveMaximum": false,
+                            "minimum": -180.0,
+                            "exclusiveMinimum": false,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageStreamDto"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "legacy_jwt_auth": []
+                    },
+                    {}
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Streams API"
+                ],
+                "summary": "[AUTH REQUIRED]",
+                "description": "Creates new streaming event. Authorizes and returns the necessary information on how to start the actual video transmission. Authentication is required.",
+                "operationId": "postStream",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StreamForm"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
                     "401": {
                         "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Created new streaming event. Returned information on how to start the actual video transmission.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StreamPublishDto"
                                 }
                             }
                         }
@@ -657,22 +820,22 @@
                     "required": true
                 },
                 "responses": {
-                    "201": {
-                        "description": "Created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/EventDto"
-                                }
-                            }
-                        }
-                    },
                     "401": {
                         "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventDto"
                                 }
                             }
                         }
@@ -723,16 +886,6 @@
                     }
                 },
                 "responses": {
-                    "404": {
-                        "description": "Event not found",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetail"
-                                }
-                            }
-                        }
-                    },
                     "409": {
                         "description": "This image already exists. Each event can have only one image.",
                         "content": {
@@ -743,8 +896,18 @@
                             }
                         }
                     },
-                    "403": {
-                        "description": "Access denied. If you are not an administrator, it is possible to add a photo only to the event you authored.",
+                    "401": {
+                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Event not found",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -756,8 +919,8 @@
                     "204": {
                         "description": "Created"
                     },
-                    "401": {
-                        "description": "Unathorized. This endpoint requires valid, non-anonymous authentication!",
+                    "403": {
+                        "description": "Access denied. If you are not an administrator, it is possible to add a photo only to the event you authored.",
                         "content": {
                             "application/problem+json": {
                                 "schema": {
@@ -802,22 +965,22 @@
                     "required": true
                 },
                 "responses": {
-                    "401": {
-                        "description": "Bad credentials, try again",
-                        "content": {
-                            "application/problem+json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ProblemDetail"
-                                }
-                            }
-                        }
-                    },
                     "201": {
                         "description": "Credentials ok, authentication tokens returned",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Bad credentials, try again",
+                        "content": {
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProblemDetail"
                                 }
                             }
                         }
@@ -909,9 +1072,6 @@
                 ],
                 "operationId": "testEndpoint",
                 "responses": {
-                    "401": {
-                        "description": "Response when you set the authentication header, but given token is invalid, expired etc. If this happens, you should correct the header or refresh access token, alternatively remove authentication header to switch to anonymous user."
-                    },
                     "200": {
                         "description": "Response with authenticated principal or anonymous user information.",
                         "content": {
@@ -931,6 +1091,9 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Response when you set the authentication header, but given token is invalid, expired etc. If this happens, you should correct the header or refresh access token, alternatively remove authentication header to switch to anonymous user."
                     }
                 },
                 "security": [
@@ -1159,6 +1322,83 @@
                     }
                 }
             },
+            "StreamForm": {
+                "required": [
+                    "location"
+                ],
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "$ref": "#/components/schemas/Location"
+                    }
+                }
+            },
+            "StreamPublishDto": {
+                "required": [
+                    "maxBitrate",
+                    "maxFps",
+                    "maxResolution",
+                    "minBitrate",
+                    "minFps",
+                    "minResolution",
+                    "restartAllowed",
+                    "rtmpsPublishBasePath",
+                    "rtmpsPublishFullUrl",
+                    "streamId",
+                    "streamKey"
+                ],
+                "type": "object",
+                "properties": {
+                    "streamId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "rtmpsPublishBasePath": {
+                        "type": "string"
+                    },
+                    "streamKey": {
+                        "type": "string"
+                    },
+                    "rtmpsPublishFullUrl": {
+                        "type": "string"
+                    },
+                    "timeLimitForStartPublishing": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "restartAllowed": {
+                        "type": "boolean"
+                    },
+                    "timeLimitForRestartPublishing": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "minBitrate": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "maxBitrate": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "minFps": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "maxFps": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "minResolution": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "maxResolution": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
             "LoginResponse": {
                 "required": [
                     "access_token",
@@ -1209,15 +1449,15 @@
                     "sort": {
                         "$ref": "#/components/schemas/SortObject"
                     },
-                    "numberOfElements": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
                     "first": {
                         "type": "boolean"
                     },
                     "last": {
                         "type": "boolean"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
                     },
                     "empty": {
                         "type": "boolean"
@@ -1264,6 +1504,105 @@
                     }
                 }
             },
+            "PageStreamDto": {
+                "type": "object",
+                "properties": {
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StreamDto"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "StreamDto": {
+                "required": [
+                    "createdLocation",
+                    "createdTime",
+                    "id",
+                    "streamPlayDto",
+                    "userDto"
+                ],
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "createdLocation": {
+                        "$ref": "#/components/schemas/Location"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "userDto": {
+                        "$ref": "#/components/schemas/UserDto"
+                    },
+                    "streamPlayDto": {
+                        "$ref": "#/components/schemas/StreamPlayDto"
+                    }
+                }
+            },
+            "StreamPlayDto": {
+                "required": [
+                    "hlsPlayBasePath",
+                    "hlsPlayFullUrl",
+                    "streamId",
+                    "streamKey"
+                ],
+                "type": "object",
+                "properties": {
+                    "streamId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "hlsPlayBasePath": {
+                        "type": "string"
+                    },
+                    "streamKey": {
+                        "type": "string"
+                    },
+                    "hlsPlayFullUrl": {
+                        "type": "string"
+                    }
+                }
+            },
             "PageEventDto": {
                 "type": "object",
                 "properties": {
@@ -1295,15 +1634,15 @@
                     "sort": {
                         "$ref": "#/components/schemas/SortObject"
                     },
-                    "numberOfElements": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
                     "first": {
                         "type": "boolean"
                     },
                     "last": {
                         "type": "boolean"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
                     },
                     "empty": {
                         "type": "boolean"

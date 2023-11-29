@@ -1,15 +1,19 @@
+import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/src/ui/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-class LiveMarkerSmall extends Marker {
-  final LatLng position;
-  const LiveMarkerSmall({required this.position})
+class StreamMarkerSmall extends Marker {
+  final StreamDto stream;
+  StreamMarkerSmall({required this.stream})
       : super(
           width: 10,
           height: 10,
-          point: position,
+          point: LatLng(
+            stream.createdLocation.latitude,
+            stream.createdLocation.longitude,
+          ),
           child: const _LivePointer(),
         );
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/generated_code/dependency_injection/injectable.dart';
 import 'package:be_aware_android/src/exceptions/server_exception.dart';
@@ -51,12 +53,9 @@ class _EventPostPageState extends State<EventPostPage> {
           tagIds: _selectedTagsIds.toList(),
         );
         try {
-          await widget.eventsService.postEvent(eventForm);
+          EventDto addedEvent = await widget.eventsService.postEvent(eventForm);
           _popLoadingDialog();
-          _showToast(
-            "Event added!!!",
-            ToastificationType.success,
-          );
+          context.push("/event/takephoto/${addedEvent.id}");
         } on ServerException catch (_) {
           _popLoadingDialog();
           _showToast(

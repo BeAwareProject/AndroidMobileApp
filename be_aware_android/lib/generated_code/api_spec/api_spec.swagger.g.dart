@@ -123,6 +123,56 @@ Map<String, dynamic> _$UserFormToJson(UserForm instance) => <String, dynamic>{
       'password': instance.password,
     };
 
+StreamForm _$StreamFormFromJson(Map<String, dynamic> json) => StreamForm(
+      location: Location.fromJson(json['location'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$StreamFormToJson(StreamForm instance) =>
+    <String, dynamic>{
+      'location': instance.location.toJson(),
+    };
+
+StreamPublishDto _$StreamPublishDtoFromJson(Map<String, dynamic> json) =>
+    StreamPublishDto(
+      streamId: json['streamId'] as int,
+      rtmpsPublishBasePath: json['rtmpsPublishBasePath'] as String,
+      streamKey: json['streamKey'] as String,
+      rtmpsPublishFullUrl: json['rtmpsPublishFullUrl'] as String,
+      timeLimitForStartPublishing: json['timeLimitForStartPublishing'] == null
+          ? null
+          : DateTime.parse(json['timeLimitForStartPublishing'] as String),
+      restartAllowed: json['restartAllowed'] as bool,
+      timeLimitForRestartPublishing:
+          json['timeLimitForRestartPublishing'] == null
+              ? null
+              : DateTime.parse(json['timeLimitForRestartPublishing'] as String),
+      minBitrate: json['minBitrate'] as int,
+      maxBitrate: json['maxBitrate'] as int,
+      minFps: json['minFps'] as int,
+      maxFps: json['maxFps'] as int,
+      minResolution: json['minResolution'] as int,
+      maxResolution: json['maxResolution'] as int,
+    );
+
+Map<String, dynamic> _$StreamPublishDtoToJson(StreamPublishDto instance) =>
+    <String, dynamic>{
+      'streamId': instance.streamId,
+      'rtmpsPublishBasePath': instance.rtmpsPublishBasePath,
+      'streamKey': instance.streamKey,
+      'rtmpsPublishFullUrl': instance.rtmpsPublishFullUrl,
+      'timeLimitForStartPublishing':
+          instance.timeLimitForStartPublishing?.toIso8601String(),
+      'restartAllowed': instance.restartAllowed,
+      'timeLimitForRestartPublishing':
+          instance.timeLimitForRestartPublishing?.toIso8601String(),
+      'minBitrate': instance.minBitrate,
+      'maxBitrate': instance.maxBitrate,
+      'minFps': instance.minFps,
+      'maxFps': instance.maxFps,
+      'minResolution': instance.minResolution,
+      'maxResolution': instance.maxResolution,
+    };
+
 LoginResponse _$LoginResponseFromJson(Map<String, dynamic> json) =>
     LoginResponse(
       user: UserDto.fromJson(json['user'] as Map<String, dynamic>),
@@ -152,9 +202,9 @@ PageTagDto _$PageTagDtoFromJson(Map<String, dynamic> json) => PageTagDto(
       sort: json['sort'] == null
           ? null
           : SortObject.fromJson(json['sort'] as Map<String, dynamic>),
-      numberOfElements: json['numberOfElements'] as int?,
       first: json['first'] as bool?,
       last: json['last'] as bool?,
+      numberOfElements: json['numberOfElements'] as int?,
       empty: json['empty'] as bool?,
     );
 
@@ -167,9 +217,9 @@ Map<String, dynamic> _$PageTagDtoToJson(PageTagDto instance) =>
       'content': instance.content?.map((e) => e.toJson()).toList(),
       'number': instance.number,
       'sort': instance.sort?.toJson(),
-      'numberOfElements': instance.numberOfElements,
       'first': instance.first,
       'last': instance.last,
+      'numberOfElements': instance.numberOfElements,
       'empty': instance.empty,
     };
 
@@ -208,6 +258,77 @@ Map<String, dynamic> _$SortObjectToJson(SortObject instance) =>
       'unsorted': instance.unsorted,
     };
 
+PageStreamDto _$PageStreamDtoFromJson(Map<String, dynamic> json) =>
+    PageStreamDto(
+      totalPages: json['totalPages'] as int?,
+      totalElements: json['totalElements'] as int?,
+      pageable: json['pageable'] == null
+          ? null
+          : PageableObject.fromJson(json['pageable'] as Map<String, dynamic>),
+      size: json['size'] as int?,
+      content: (json['content'] as List<dynamic>?)
+              ?.map((e) => StreamDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      number: json['number'] as int?,
+      sort: json['sort'] == null
+          ? null
+          : SortObject.fromJson(json['sort'] as Map<String, dynamic>),
+      first: json['first'] as bool?,
+      last: json['last'] as bool?,
+      numberOfElements: json['numberOfElements'] as int?,
+      empty: json['empty'] as bool?,
+    );
+
+Map<String, dynamic> _$PageStreamDtoToJson(PageStreamDto instance) =>
+    <String, dynamic>{
+      'totalPages': instance.totalPages,
+      'totalElements': instance.totalElements,
+      'pageable': instance.pageable?.toJson(),
+      'size': instance.size,
+      'content': instance.content?.map((e) => e.toJson()).toList(),
+      'number': instance.number,
+      'sort': instance.sort?.toJson(),
+      'first': instance.first,
+      'last': instance.last,
+      'numberOfElements': instance.numberOfElements,
+      'empty': instance.empty,
+    };
+
+StreamDto _$StreamDtoFromJson(Map<String, dynamic> json) => StreamDto(
+      id: json['id'] as int,
+      createdLocation:
+          Location.fromJson(json['createdLocation'] as Map<String, dynamic>),
+      createdTime: DateTime.parse(json['createdTime'] as String),
+      userDto: UserDto.fromJson(json['userDto'] as Map<String, dynamic>),
+      streamPlayDto:
+          StreamPlayDto.fromJson(json['streamPlayDto'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$StreamDtoToJson(StreamDto instance) => <String, dynamic>{
+      'id': instance.id,
+      'createdLocation': instance.createdLocation.toJson(),
+      'createdTime': instance.createdTime.toIso8601String(),
+      'userDto': instance.userDto.toJson(),
+      'streamPlayDto': instance.streamPlayDto.toJson(),
+    };
+
+StreamPlayDto _$StreamPlayDtoFromJson(Map<String, dynamic> json) =>
+    StreamPlayDto(
+      streamId: json['streamId'] as int,
+      hlsPlayBasePath: json['hlsPlayBasePath'] as String,
+      streamKey: json['streamKey'] as String,
+      hlsPlayFullUrl: json['hlsPlayFullUrl'] as String,
+    );
+
+Map<String, dynamic> _$StreamPlayDtoToJson(StreamPlayDto instance) =>
+    <String, dynamic>{
+      'streamId': instance.streamId,
+      'hlsPlayBasePath': instance.hlsPlayBasePath,
+      'streamKey': instance.streamKey,
+      'hlsPlayFullUrl': instance.hlsPlayFullUrl,
+    };
+
 PageEventDto _$PageEventDtoFromJson(Map<String, dynamic> json) => PageEventDto(
       totalPages: json['totalPages'] as int?,
       totalElements: json['totalElements'] as int?,
@@ -223,9 +344,9 @@ PageEventDto _$PageEventDtoFromJson(Map<String, dynamic> json) => PageEventDto(
       sort: json['sort'] == null
           ? null
           : SortObject.fromJson(json['sort'] as Map<String, dynamic>),
-      numberOfElements: json['numberOfElements'] as int?,
       first: json['first'] as bool?,
       last: json['last'] as bool?,
+      numberOfElements: json['numberOfElements'] as int?,
       empty: json['empty'] as bool?,
     );
 
@@ -238,9 +359,9 @@ Map<String, dynamic> _$PageEventDtoToJson(PageEventDto instance) =>
       'content': instance.content?.map((e) => e.toJson()).toList(),
       'number': instance.number,
       'sort': instance.sort?.toJson(),
-      'numberOfElements': instance.numberOfElements,
       'first': instance.first,
       'last': instance.last,
+      'numberOfElements': instance.numberOfElements,
       'empty': instance.empty,
     };
 

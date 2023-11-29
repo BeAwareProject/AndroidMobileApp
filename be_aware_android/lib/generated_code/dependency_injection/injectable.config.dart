@@ -15,6 +15,7 @@ import '../../src/repos/auth_repo.dart' as _i3;
 import '../../src/services/api.dart' as _i4;
 import '../../src/services/auth_service.dart' as _i5;
 import '../../src/services/events_service.dart' as _i6;
+import '../../src/services/streams_service.dart' as _i7;
 
 extension GetItInjectableX on _i1.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -34,6 +35,7 @@ extension GetItInjectableX on _i1.GetIt {
           gh<_i3.AuthRepo>(),
         ));
     gh.factory<_i6.EventsService>(() => _i6.EventsService(gh<_i4.Api>()));
+    gh.factory<_i7.StreamsService>(() => _i7.StreamsService(gh<_i4.Api>()));
     return this;
   }
 }

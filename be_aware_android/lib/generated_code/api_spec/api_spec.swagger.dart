@@ -187,6 +187,72 @@ abstract class ApiSpec extends ChopperService {
   ///@param rectangleStartLongitude
   ///@param rectangleEndLatitude
   ///@param rectangleEndLongitude
+  Future<chopper.Response<PageStreamDto>> streamsGet({
+    int? page,
+    int? size,
+    List<String>? sort,
+    required num? rectangleStartLatitude,
+    required num? rectangleStartLongitude,
+    required num? rectangleEndLatitude,
+    required num? rectangleEndLongitude,
+  }) {
+    generatedMapping.putIfAbsent(
+        PageStreamDto, () => PageStreamDto.fromJsonFactory);
+
+    return _streamsGet(
+        page: page,
+        size: size,
+        sort: sort,
+        rectangleStartLatitude: rectangleStartLatitude,
+        rectangleStartLongitude: rectangleStartLongitude,
+        rectangleEndLatitude: rectangleEndLatitude,
+        rectangleEndLongitude: rectangleEndLongitude);
+  }
+
+  ///
+  ///@param page Zero-based page index (0..N)
+  ///@param size The size of the page to be returned
+  ///@param sort Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+  ///@param rectangleStartLatitude
+  ///@param rectangleStartLongitude
+  ///@param rectangleEndLatitude
+  ///@param rectangleEndLongitude
+  @Get(path: '/streams')
+  Future<chopper.Response<PageStreamDto>> _streamsGet({
+    @Query('page') int? page,
+    @Query('size') int? size,
+    @Query('sort') List<String>? sort,
+    @Query('rectangleStartLatitude') required num? rectangleStartLatitude,
+    @Query('rectangleStartLongitude') required num? rectangleStartLongitude,
+    @Query('rectangleEndLatitude') required num? rectangleEndLatitude,
+    @Query('rectangleEndLongitude') required num? rectangleEndLongitude,
+  });
+
+  ///[AUTH REQUIRED]
+  Future<chopper.Response<StreamPublishDto>> streamsPost(
+      {required StreamForm? body}) {
+    generatedMapping.putIfAbsent(
+        StreamPublishDto, () => StreamPublishDto.fromJsonFactory);
+
+    return _streamsPost(body: body);
+  }
+
+  ///[AUTH REQUIRED]
+  @Post(
+    path: '/streams',
+    optionalBody: true,
+  )
+  Future<chopper.Response<StreamPublishDto>> _streamsPost(
+      {@Body() required StreamForm? body});
+
+  ///
+  ///@param page Zero-based page index (0..N)
+  ///@param size The size of the page to be returned
+  ///@param sort Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+  ///@param rectangleStartLatitude
+  ///@param rectangleStartLongitude
+  ///@param rectangleEndLatitude
+  ///@param rectangleEndLongitude
   Future<chopper.Response<PageEventDto>> eventsGet({
     int? page,
     int? size,
@@ -918,6 +984,246 @@ extension $UserFormExtension on UserForm {
 }
 
 @JsonSerializable(explicitToJson: true)
+class StreamForm {
+  const StreamForm({
+    required this.location,
+  });
+
+  factory StreamForm.fromJson(Map<String, dynamic> json) =>
+      _$StreamFormFromJson(json);
+
+  static const toJsonFactory = _$StreamFormToJson;
+  Map<String, dynamic> toJson() => _$StreamFormToJson(this);
+
+  @JsonKey(name: 'location')
+  final Location location;
+  static const fromJsonFactory = _$StreamFormFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is StreamForm &&
+            (identical(other.location, location) ||
+                const DeepCollectionEquality()
+                    .equals(other.location, location)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(location) ^ runtimeType.hashCode;
+}
+
+extension $StreamFormExtension on StreamForm {
+  StreamForm copyWith({Location? location}) {
+    return StreamForm(location: location ?? this.location);
+  }
+
+  StreamForm copyWithWrapped({Wrapped<Location>? location}) {
+    return StreamForm(
+        location: (location != null ? location.value : this.location));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
+class StreamPublishDto {
+  const StreamPublishDto({
+    required this.streamId,
+    required this.rtmpsPublishBasePath,
+    required this.streamKey,
+    required this.rtmpsPublishFullUrl,
+    this.timeLimitForStartPublishing,
+    required this.restartAllowed,
+    this.timeLimitForRestartPublishing,
+    required this.minBitrate,
+    required this.maxBitrate,
+    required this.minFps,
+    required this.maxFps,
+    required this.minResolution,
+    required this.maxResolution,
+  });
+
+  factory StreamPublishDto.fromJson(Map<String, dynamic> json) =>
+      _$StreamPublishDtoFromJson(json);
+
+  static const toJsonFactory = _$StreamPublishDtoToJson;
+  Map<String, dynamic> toJson() => _$StreamPublishDtoToJson(this);
+
+  @JsonKey(name: 'streamId')
+  final int streamId;
+  @JsonKey(name: 'rtmpsPublishBasePath')
+  final String rtmpsPublishBasePath;
+  @JsonKey(name: 'streamKey')
+  final String streamKey;
+  @JsonKey(name: 'rtmpsPublishFullUrl')
+  final String rtmpsPublishFullUrl;
+  @JsonKey(name: 'timeLimitForStartPublishing')
+  final DateTime? timeLimitForStartPublishing;
+  @JsonKey(name: 'restartAllowed')
+  final bool restartAllowed;
+  @JsonKey(name: 'timeLimitForRestartPublishing')
+  final DateTime? timeLimitForRestartPublishing;
+  @JsonKey(name: 'minBitrate')
+  final int minBitrate;
+  @JsonKey(name: 'maxBitrate')
+  final int maxBitrate;
+  @JsonKey(name: 'minFps')
+  final int minFps;
+  @JsonKey(name: 'maxFps')
+  final int maxFps;
+  @JsonKey(name: 'minResolution')
+  final int minResolution;
+  @JsonKey(name: 'maxResolution')
+  final int maxResolution;
+  static const fromJsonFactory = _$StreamPublishDtoFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is StreamPublishDto &&
+            (identical(other.streamId, streamId) ||
+                const DeepCollectionEquality()
+                    .equals(other.streamId, streamId)) &&
+            (identical(other.rtmpsPublishBasePath, rtmpsPublishBasePath) ||
+                const DeepCollectionEquality().equals(
+                    other.rtmpsPublishBasePath, rtmpsPublishBasePath)) &&
+            (identical(other.streamKey, streamKey) ||
+                const DeepCollectionEquality()
+                    .equals(other.streamKey, streamKey)) &&
+            (identical(other.rtmpsPublishFullUrl, rtmpsPublishFullUrl) ||
+                const DeepCollectionEquality()
+                    .equals(other.rtmpsPublishFullUrl, rtmpsPublishFullUrl)) &&
+            (identical(other.timeLimitForStartPublishing,
+                    timeLimitForStartPublishing) ||
+                const DeepCollectionEquality().equals(
+                    other.timeLimitForStartPublishing,
+                    timeLimitForStartPublishing)) &&
+            (identical(other.restartAllowed, restartAllowed) ||
+                const DeepCollectionEquality()
+                    .equals(other.restartAllowed, restartAllowed)) &&
+            (identical(other.timeLimitForRestartPublishing,
+                    timeLimitForRestartPublishing) ||
+                const DeepCollectionEquality().equals(
+                    other.timeLimitForRestartPublishing,
+                    timeLimitForRestartPublishing)) &&
+            (identical(other.minBitrate, minBitrate) ||
+                const DeepCollectionEquality()
+                    .equals(other.minBitrate, minBitrate)) &&
+            (identical(other.maxBitrate, maxBitrate) ||
+                const DeepCollectionEquality()
+                    .equals(other.maxBitrate, maxBitrate)) &&
+            (identical(other.minFps, minFps) ||
+                const DeepCollectionEquality().equals(other.minFps, minFps)) &&
+            (identical(other.maxFps, maxFps) ||
+                const DeepCollectionEquality().equals(other.maxFps, maxFps)) &&
+            (identical(other.minResolution, minResolution) ||
+                const DeepCollectionEquality()
+                    .equals(other.minResolution, minResolution)) &&
+            (identical(other.maxResolution, maxResolution) ||
+                const DeepCollectionEquality()
+                    .equals(other.maxResolution, maxResolution)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(streamId) ^
+      const DeepCollectionEquality().hash(rtmpsPublishBasePath) ^
+      const DeepCollectionEquality().hash(streamKey) ^
+      const DeepCollectionEquality().hash(rtmpsPublishFullUrl) ^
+      const DeepCollectionEquality().hash(timeLimitForStartPublishing) ^
+      const DeepCollectionEquality().hash(restartAllowed) ^
+      const DeepCollectionEquality().hash(timeLimitForRestartPublishing) ^
+      const DeepCollectionEquality().hash(minBitrate) ^
+      const DeepCollectionEquality().hash(maxBitrate) ^
+      const DeepCollectionEquality().hash(minFps) ^
+      const DeepCollectionEquality().hash(maxFps) ^
+      const DeepCollectionEquality().hash(minResolution) ^
+      const DeepCollectionEquality().hash(maxResolution) ^
+      runtimeType.hashCode;
+}
+
+extension $StreamPublishDtoExtension on StreamPublishDto {
+  StreamPublishDto copyWith(
+      {int? streamId,
+      String? rtmpsPublishBasePath,
+      String? streamKey,
+      String? rtmpsPublishFullUrl,
+      DateTime? timeLimitForStartPublishing,
+      bool? restartAllowed,
+      DateTime? timeLimitForRestartPublishing,
+      int? minBitrate,
+      int? maxBitrate,
+      int? minFps,
+      int? maxFps,
+      int? minResolution,
+      int? maxResolution}) {
+    return StreamPublishDto(
+        streamId: streamId ?? this.streamId,
+        rtmpsPublishBasePath: rtmpsPublishBasePath ?? this.rtmpsPublishBasePath,
+        streamKey: streamKey ?? this.streamKey,
+        rtmpsPublishFullUrl: rtmpsPublishFullUrl ?? this.rtmpsPublishFullUrl,
+        timeLimitForStartPublishing:
+            timeLimitForStartPublishing ?? this.timeLimitForStartPublishing,
+        restartAllowed: restartAllowed ?? this.restartAllowed,
+        timeLimitForRestartPublishing:
+            timeLimitForRestartPublishing ?? this.timeLimitForRestartPublishing,
+        minBitrate: minBitrate ?? this.minBitrate,
+        maxBitrate: maxBitrate ?? this.maxBitrate,
+        minFps: minFps ?? this.minFps,
+        maxFps: maxFps ?? this.maxFps,
+        minResolution: minResolution ?? this.minResolution,
+        maxResolution: maxResolution ?? this.maxResolution);
+  }
+
+  StreamPublishDto copyWithWrapped(
+      {Wrapped<int>? streamId,
+      Wrapped<String>? rtmpsPublishBasePath,
+      Wrapped<String>? streamKey,
+      Wrapped<String>? rtmpsPublishFullUrl,
+      Wrapped<DateTime?>? timeLimitForStartPublishing,
+      Wrapped<bool>? restartAllowed,
+      Wrapped<DateTime?>? timeLimitForRestartPublishing,
+      Wrapped<int>? minBitrate,
+      Wrapped<int>? maxBitrate,
+      Wrapped<int>? minFps,
+      Wrapped<int>? maxFps,
+      Wrapped<int>? minResolution,
+      Wrapped<int>? maxResolution}) {
+    return StreamPublishDto(
+        streamId: (streamId != null ? streamId.value : this.streamId),
+        rtmpsPublishBasePath: (rtmpsPublishBasePath != null
+            ? rtmpsPublishBasePath.value
+            : this.rtmpsPublishBasePath),
+        streamKey: (streamKey != null ? streamKey.value : this.streamKey),
+        rtmpsPublishFullUrl: (rtmpsPublishFullUrl != null
+            ? rtmpsPublishFullUrl.value
+            : this.rtmpsPublishFullUrl),
+        timeLimitForStartPublishing: (timeLimitForStartPublishing != null
+            ? timeLimitForStartPublishing.value
+            : this.timeLimitForStartPublishing),
+        restartAllowed: (restartAllowed != null
+            ? restartAllowed.value
+            : this.restartAllowed),
+        timeLimitForRestartPublishing: (timeLimitForRestartPublishing != null
+            ? timeLimitForRestartPublishing.value
+            : this.timeLimitForRestartPublishing),
+        minBitrate: (minBitrate != null ? minBitrate.value : this.minBitrate),
+        maxBitrate: (maxBitrate != null ? maxBitrate.value : this.maxBitrate),
+        minFps: (minFps != null ? minFps.value : this.minFps),
+        maxFps: (maxFps != null ? maxFps.value : this.maxFps),
+        minResolution:
+            (minResolution != null ? minResolution.value : this.minResolution),
+        maxResolution:
+            (maxResolution != null ? maxResolution.value : this.maxResolution));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
 class LoginResponse {
   const LoginResponse({
     required this.user,
@@ -996,9 +1302,9 @@ class PageTagDto {
     this.content,
     this.number,
     this.sort,
-    this.numberOfElements,
     this.first,
     this.last,
+    this.numberOfElements,
     this.empty,
   });
 
@@ -1022,12 +1328,12 @@ class PageTagDto {
   final int? number;
   @JsonKey(name: 'sort')
   final SortObject? sort;
-  @JsonKey(name: 'numberOfElements')
-  final int? numberOfElements;
   @JsonKey(name: 'first')
   final bool? first;
   @JsonKey(name: 'last')
   final bool? last;
+  @JsonKey(name: 'numberOfElements')
+  final int? numberOfElements;
   @JsonKey(name: 'empty')
   final bool? empty;
   static const fromJsonFactory = _$PageTagDtoFromJson;
@@ -1054,13 +1360,13 @@ class PageTagDto {
                 const DeepCollectionEquality().equals(other.number, number)) &&
             (identical(other.sort, sort) ||
                 const DeepCollectionEquality().equals(other.sort, sort)) &&
-            (identical(other.numberOfElements, numberOfElements) ||
-                const DeepCollectionEquality()
-                    .equals(other.numberOfElements, numberOfElements)) &&
             (identical(other.first, first) ||
                 const DeepCollectionEquality().equals(other.first, first)) &&
             (identical(other.last, last) ||
                 const DeepCollectionEquality().equals(other.last, last)) &&
+            (identical(other.numberOfElements, numberOfElements) ||
+                const DeepCollectionEquality()
+                    .equals(other.numberOfElements, numberOfElements)) &&
             (identical(other.empty, empty) ||
                 const DeepCollectionEquality().equals(other.empty, empty)));
   }
@@ -1077,9 +1383,9 @@ class PageTagDto {
       const DeepCollectionEquality().hash(content) ^
       const DeepCollectionEquality().hash(number) ^
       const DeepCollectionEquality().hash(sort) ^
-      const DeepCollectionEquality().hash(numberOfElements) ^
       const DeepCollectionEquality().hash(first) ^
       const DeepCollectionEquality().hash(last) ^
+      const DeepCollectionEquality().hash(numberOfElements) ^
       const DeepCollectionEquality().hash(empty) ^
       runtimeType.hashCode;
 }
@@ -1093,9 +1399,9 @@ extension $PageTagDtoExtension on PageTagDto {
       List<TagDto>? content,
       int? number,
       SortObject? sort,
-      int? numberOfElements,
       bool? first,
       bool? last,
+      int? numberOfElements,
       bool? empty}) {
     return PageTagDto(
         totalPages: totalPages ?? this.totalPages,
@@ -1105,9 +1411,9 @@ extension $PageTagDtoExtension on PageTagDto {
         content: content ?? this.content,
         number: number ?? this.number,
         sort: sort ?? this.sort,
-        numberOfElements: numberOfElements ?? this.numberOfElements,
         first: first ?? this.first,
         last: last ?? this.last,
+        numberOfElements: numberOfElements ?? this.numberOfElements,
         empty: empty ?? this.empty);
   }
 
@@ -1119,9 +1425,9 @@ extension $PageTagDtoExtension on PageTagDto {
       Wrapped<List<TagDto>?>? content,
       Wrapped<int?>? number,
       Wrapped<SortObject?>? sort,
-      Wrapped<int?>? numberOfElements,
       Wrapped<bool?>? first,
       Wrapped<bool?>? last,
+      Wrapped<int?>? numberOfElements,
       Wrapped<bool?>? empty}) {
     return PageTagDto(
         totalPages: (totalPages != null ? totalPages.value : this.totalPages),
@@ -1132,11 +1438,11 @@ extension $PageTagDtoExtension on PageTagDto {
         content: (content != null ? content.value : this.content),
         number: (number != null ? number.value : this.number),
         sort: (sort != null ? sort.value : this.sort),
+        first: (first != null ? first.value : this.first),
+        last: (last != null ? last.value : this.last),
         numberOfElements: (numberOfElements != null
             ? numberOfElements.value
             : this.numberOfElements),
-        first: (first != null ? first.value : this.first),
-        last: (last != null ? last.value : this.last),
         empty: (empty != null ? empty.value : this.empty));
   }
 }
@@ -1306,6 +1612,341 @@ extension $SortObjectExtension on SortObject {
 }
 
 @JsonSerializable(explicitToJson: true)
+class PageStreamDto {
+  const PageStreamDto({
+    this.totalPages,
+    this.totalElements,
+    this.pageable,
+    this.size,
+    this.content,
+    this.number,
+    this.sort,
+    this.first,
+    this.last,
+    this.numberOfElements,
+    this.empty,
+  });
+
+  factory PageStreamDto.fromJson(Map<String, dynamic> json) =>
+      _$PageStreamDtoFromJson(json);
+
+  static const toJsonFactory = _$PageStreamDtoToJson;
+  Map<String, dynamic> toJson() => _$PageStreamDtoToJson(this);
+
+  @JsonKey(name: 'totalPages')
+  final int? totalPages;
+  @JsonKey(name: 'totalElements')
+  final int? totalElements;
+  @JsonKey(name: 'pageable')
+  final PageableObject? pageable;
+  @JsonKey(name: 'size')
+  final int? size;
+  @JsonKey(name: 'content', defaultValue: <StreamDto>[])
+  final List<StreamDto>? content;
+  @JsonKey(name: 'number')
+  final int? number;
+  @JsonKey(name: 'sort')
+  final SortObject? sort;
+  @JsonKey(name: 'first')
+  final bool? first;
+  @JsonKey(name: 'last')
+  final bool? last;
+  @JsonKey(name: 'numberOfElements')
+  final int? numberOfElements;
+  @JsonKey(name: 'empty')
+  final bool? empty;
+  static const fromJsonFactory = _$PageStreamDtoFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is PageStreamDto &&
+            (identical(other.totalPages, totalPages) ||
+                const DeepCollectionEquality()
+                    .equals(other.totalPages, totalPages)) &&
+            (identical(other.totalElements, totalElements) ||
+                const DeepCollectionEquality()
+                    .equals(other.totalElements, totalElements)) &&
+            (identical(other.pageable, pageable) ||
+                const DeepCollectionEquality()
+                    .equals(other.pageable, pageable)) &&
+            (identical(other.size, size) ||
+                const DeepCollectionEquality().equals(other.size, size)) &&
+            (identical(other.content, content) ||
+                const DeepCollectionEquality()
+                    .equals(other.content, content)) &&
+            (identical(other.number, number) ||
+                const DeepCollectionEquality().equals(other.number, number)) &&
+            (identical(other.sort, sort) ||
+                const DeepCollectionEquality().equals(other.sort, sort)) &&
+            (identical(other.first, first) ||
+                const DeepCollectionEquality().equals(other.first, first)) &&
+            (identical(other.last, last) ||
+                const DeepCollectionEquality().equals(other.last, last)) &&
+            (identical(other.numberOfElements, numberOfElements) ||
+                const DeepCollectionEquality()
+                    .equals(other.numberOfElements, numberOfElements)) &&
+            (identical(other.empty, empty) ||
+                const DeepCollectionEquality().equals(other.empty, empty)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(totalPages) ^
+      const DeepCollectionEquality().hash(totalElements) ^
+      const DeepCollectionEquality().hash(pageable) ^
+      const DeepCollectionEquality().hash(size) ^
+      const DeepCollectionEquality().hash(content) ^
+      const DeepCollectionEquality().hash(number) ^
+      const DeepCollectionEquality().hash(sort) ^
+      const DeepCollectionEquality().hash(first) ^
+      const DeepCollectionEquality().hash(last) ^
+      const DeepCollectionEquality().hash(numberOfElements) ^
+      const DeepCollectionEquality().hash(empty) ^
+      runtimeType.hashCode;
+}
+
+extension $PageStreamDtoExtension on PageStreamDto {
+  PageStreamDto copyWith(
+      {int? totalPages,
+      int? totalElements,
+      PageableObject? pageable,
+      int? size,
+      List<StreamDto>? content,
+      int? number,
+      SortObject? sort,
+      bool? first,
+      bool? last,
+      int? numberOfElements,
+      bool? empty}) {
+    return PageStreamDto(
+        totalPages: totalPages ?? this.totalPages,
+        totalElements: totalElements ?? this.totalElements,
+        pageable: pageable ?? this.pageable,
+        size: size ?? this.size,
+        content: content ?? this.content,
+        number: number ?? this.number,
+        sort: sort ?? this.sort,
+        first: first ?? this.first,
+        last: last ?? this.last,
+        numberOfElements: numberOfElements ?? this.numberOfElements,
+        empty: empty ?? this.empty);
+  }
+
+  PageStreamDto copyWithWrapped(
+      {Wrapped<int?>? totalPages,
+      Wrapped<int?>? totalElements,
+      Wrapped<PageableObject?>? pageable,
+      Wrapped<int?>? size,
+      Wrapped<List<StreamDto>?>? content,
+      Wrapped<int?>? number,
+      Wrapped<SortObject?>? sort,
+      Wrapped<bool?>? first,
+      Wrapped<bool?>? last,
+      Wrapped<int?>? numberOfElements,
+      Wrapped<bool?>? empty}) {
+    return PageStreamDto(
+        totalPages: (totalPages != null ? totalPages.value : this.totalPages),
+        totalElements:
+            (totalElements != null ? totalElements.value : this.totalElements),
+        pageable: (pageable != null ? pageable.value : this.pageable),
+        size: (size != null ? size.value : this.size),
+        content: (content != null ? content.value : this.content),
+        number: (number != null ? number.value : this.number),
+        sort: (sort != null ? sort.value : this.sort),
+        first: (first != null ? first.value : this.first),
+        last: (last != null ? last.value : this.last),
+        numberOfElements: (numberOfElements != null
+            ? numberOfElements.value
+            : this.numberOfElements),
+        empty: (empty != null ? empty.value : this.empty));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
+class StreamDto {
+  const StreamDto({
+    required this.id,
+    required this.createdLocation,
+    required this.createdTime,
+    required this.userDto,
+    required this.streamPlayDto,
+  });
+
+  factory StreamDto.fromJson(Map<String, dynamic> json) =>
+      _$StreamDtoFromJson(json);
+
+  static const toJsonFactory = _$StreamDtoToJson;
+  Map<String, dynamic> toJson() => _$StreamDtoToJson(this);
+
+  @JsonKey(name: 'id')
+  final int id;
+  @JsonKey(name: 'createdLocation')
+  final Location createdLocation;
+  @JsonKey(name: 'createdTime')
+  final DateTime createdTime;
+  @JsonKey(name: 'userDto')
+  final UserDto userDto;
+  @JsonKey(name: 'streamPlayDto')
+  final StreamPlayDto streamPlayDto;
+  static const fromJsonFactory = _$StreamDtoFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is StreamDto &&
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.createdLocation, createdLocation) ||
+                const DeepCollectionEquality()
+                    .equals(other.createdLocation, createdLocation)) &&
+            (identical(other.createdTime, createdTime) ||
+                const DeepCollectionEquality()
+                    .equals(other.createdTime, createdTime)) &&
+            (identical(other.userDto, userDto) ||
+                const DeepCollectionEquality()
+                    .equals(other.userDto, userDto)) &&
+            (identical(other.streamPlayDto, streamPlayDto) ||
+                const DeepCollectionEquality()
+                    .equals(other.streamPlayDto, streamPlayDto)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(id) ^
+      const DeepCollectionEquality().hash(createdLocation) ^
+      const DeepCollectionEquality().hash(createdTime) ^
+      const DeepCollectionEquality().hash(userDto) ^
+      const DeepCollectionEquality().hash(streamPlayDto) ^
+      runtimeType.hashCode;
+}
+
+extension $StreamDtoExtension on StreamDto {
+  StreamDto copyWith(
+      {int? id,
+      Location? createdLocation,
+      DateTime? createdTime,
+      UserDto? userDto,
+      StreamPlayDto? streamPlayDto}) {
+    return StreamDto(
+        id: id ?? this.id,
+        createdLocation: createdLocation ?? this.createdLocation,
+        createdTime: createdTime ?? this.createdTime,
+        userDto: userDto ?? this.userDto,
+        streamPlayDto: streamPlayDto ?? this.streamPlayDto);
+  }
+
+  StreamDto copyWithWrapped(
+      {Wrapped<int>? id,
+      Wrapped<Location>? createdLocation,
+      Wrapped<DateTime>? createdTime,
+      Wrapped<UserDto>? userDto,
+      Wrapped<StreamPlayDto>? streamPlayDto}) {
+    return StreamDto(
+        id: (id != null ? id.value : this.id),
+        createdLocation: (createdLocation != null
+            ? createdLocation.value
+            : this.createdLocation),
+        createdTime:
+            (createdTime != null ? createdTime.value : this.createdTime),
+        userDto: (userDto != null ? userDto.value : this.userDto),
+        streamPlayDto:
+            (streamPlayDto != null ? streamPlayDto.value : this.streamPlayDto));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
+class StreamPlayDto {
+  const StreamPlayDto({
+    required this.streamId,
+    required this.hlsPlayBasePath,
+    required this.streamKey,
+    required this.hlsPlayFullUrl,
+  });
+
+  factory StreamPlayDto.fromJson(Map<String, dynamic> json) =>
+      _$StreamPlayDtoFromJson(json);
+
+  static const toJsonFactory = _$StreamPlayDtoToJson;
+  Map<String, dynamic> toJson() => _$StreamPlayDtoToJson(this);
+
+  @JsonKey(name: 'streamId')
+  final int streamId;
+  @JsonKey(name: 'hlsPlayBasePath')
+  final String hlsPlayBasePath;
+  @JsonKey(name: 'streamKey')
+  final String streamKey;
+  @JsonKey(name: 'hlsPlayFullUrl')
+  final String hlsPlayFullUrl;
+  static const fromJsonFactory = _$StreamPlayDtoFromJson;
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is StreamPlayDto &&
+            (identical(other.streamId, streamId) ||
+                const DeepCollectionEquality()
+                    .equals(other.streamId, streamId)) &&
+            (identical(other.hlsPlayBasePath, hlsPlayBasePath) ||
+                const DeepCollectionEquality()
+                    .equals(other.hlsPlayBasePath, hlsPlayBasePath)) &&
+            (identical(other.streamKey, streamKey) ||
+                const DeepCollectionEquality()
+                    .equals(other.streamKey, streamKey)) &&
+            (identical(other.hlsPlayFullUrl, hlsPlayFullUrl) ||
+                const DeepCollectionEquality()
+                    .equals(other.hlsPlayFullUrl, hlsPlayFullUrl)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(streamId) ^
+      const DeepCollectionEquality().hash(hlsPlayBasePath) ^
+      const DeepCollectionEquality().hash(streamKey) ^
+      const DeepCollectionEquality().hash(hlsPlayFullUrl) ^
+      runtimeType.hashCode;
+}
+
+extension $StreamPlayDtoExtension on StreamPlayDto {
+  StreamPlayDto copyWith(
+      {int? streamId,
+      String? hlsPlayBasePath,
+      String? streamKey,
+      String? hlsPlayFullUrl}) {
+    return StreamPlayDto(
+        streamId: streamId ?? this.streamId,
+        hlsPlayBasePath: hlsPlayBasePath ?? this.hlsPlayBasePath,
+        streamKey: streamKey ?? this.streamKey,
+        hlsPlayFullUrl: hlsPlayFullUrl ?? this.hlsPlayFullUrl);
+  }
+
+  StreamPlayDto copyWithWrapped(
+      {Wrapped<int>? streamId,
+      Wrapped<String>? hlsPlayBasePath,
+      Wrapped<String>? streamKey,
+      Wrapped<String>? hlsPlayFullUrl}) {
+    return StreamPlayDto(
+        streamId: (streamId != null ? streamId.value : this.streamId),
+        hlsPlayBasePath: (hlsPlayBasePath != null
+            ? hlsPlayBasePath.value
+            : this.hlsPlayBasePath),
+        streamKey: (streamKey != null ? streamKey.value : this.streamKey),
+        hlsPlayFullUrl: (hlsPlayFullUrl != null
+            ? hlsPlayFullUrl.value
+            : this.hlsPlayFullUrl));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
 class PageEventDto {
   const PageEventDto({
     this.totalPages,
@@ -1315,9 +1956,9 @@ class PageEventDto {
     this.content,
     this.number,
     this.sort,
-    this.numberOfElements,
     this.first,
     this.last,
+    this.numberOfElements,
     this.empty,
   });
 
@@ -1341,12 +1982,12 @@ class PageEventDto {
   final int? number;
   @JsonKey(name: 'sort')
   final SortObject? sort;
-  @JsonKey(name: 'numberOfElements')
-  final int? numberOfElements;
   @JsonKey(name: 'first')
   final bool? first;
   @JsonKey(name: 'last')
   final bool? last;
+  @JsonKey(name: 'numberOfElements')
+  final int? numberOfElements;
   @JsonKey(name: 'empty')
   final bool? empty;
   static const fromJsonFactory = _$PageEventDtoFromJson;
@@ -1373,13 +2014,13 @@ class PageEventDto {
                 const DeepCollectionEquality().equals(other.number, number)) &&
             (identical(other.sort, sort) ||
                 const DeepCollectionEquality().equals(other.sort, sort)) &&
-            (identical(other.numberOfElements, numberOfElements) ||
-                const DeepCollectionEquality()
-                    .equals(other.numberOfElements, numberOfElements)) &&
             (identical(other.first, first) ||
                 const DeepCollectionEquality().equals(other.first, first)) &&
             (identical(other.last, last) ||
                 const DeepCollectionEquality().equals(other.last, last)) &&
+            (identical(other.numberOfElements, numberOfElements) ||
+                const DeepCollectionEquality()
+                    .equals(other.numberOfElements, numberOfElements)) &&
             (identical(other.empty, empty) ||
                 const DeepCollectionEquality().equals(other.empty, empty)));
   }
@@ -1396,9 +2037,9 @@ class PageEventDto {
       const DeepCollectionEquality().hash(content) ^
       const DeepCollectionEquality().hash(number) ^
       const DeepCollectionEquality().hash(sort) ^
-      const DeepCollectionEquality().hash(numberOfElements) ^
       const DeepCollectionEquality().hash(first) ^
       const DeepCollectionEquality().hash(last) ^
+      const DeepCollectionEquality().hash(numberOfElements) ^
       const DeepCollectionEquality().hash(empty) ^
       runtimeType.hashCode;
 }
@@ -1412,9 +2053,9 @@ extension $PageEventDtoExtension on PageEventDto {
       List<EventDto>? content,
       int? number,
       SortObject? sort,
-      int? numberOfElements,
       bool? first,
       bool? last,
+      int? numberOfElements,
       bool? empty}) {
     return PageEventDto(
         totalPages: totalPages ?? this.totalPages,
@@ -1424,9 +2065,9 @@ extension $PageEventDtoExtension on PageEventDto {
         content: content ?? this.content,
         number: number ?? this.number,
         sort: sort ?? this.sort,
-        numberOfElements: numberOfElements ?? this.numberOfElements,
         first: first ?? this.first,
         last: last ?? this.last,
+        numberOfElements: numberOfElements ?? this.numberOfElements,
         empty: empty ?? this.empty);
   }
 
@@ -1438,9 +2079,9 @@ extension $PageEventDtoExtension on PageEventDto {
       Wrapped<List<EventDto>?>? content,
       Wrapped<int?>? number,
       Wrapped<SortObject?>? sort,
-      Wrapped<int?>? numberOfElements,
       Wrapped<bool?>? first,
       Wrapped<bool?>? last,
+      Wrapped<int?>? numberOfElements,
       Wrapped<bool?>? empty}) {
     return PageEventDto(
         totalPages: (totalPages != null ? totalPages.value : this.totalPages),
@@ -1451,11 +2092,11 @@ extension $PageEventDtoExtension on PageEventDto {
         content: (content != null ? content.value : this.content),
         number: (number != null ? number.value : this.number),
         sort: (sort != null ? sort.value : this.sort),
+        first: (first != null ? first.value : this.first),
+        last: (last != null ? last.value : this.last),
         numberOfElements: (numberOfElements != null
             ? numberOfElements.value
             : this.numberOfElements),
-        first: (first != null ? first.value : this.first),
-        last: (last != null ? last.value : this.last),
         empty: (empty != null ? empty.value : this.empty));
   }
 }
