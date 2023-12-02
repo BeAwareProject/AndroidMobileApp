@@ -45,18 +45,19 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-    _checkLocalizationPermission();
-    _locationTimer = Timer.periodic(
-      const Duration(seconds: 5),
-      (_) {
-        _updateLocation();
-      },
-    );
-    _getCurrentLocation().then((loc) {
-      setState(() {
-        _currentLocation = loc;
-        _initLocation = loc;
-        _lastLocation = loc;
+    _checkLocalizationPermission().then((_) {
+      _locationTimer = Timer.periodic(
+        const Duration(seconds: 5),
+        (_) {
+          _updateLocation();
+        },
+      );
+      _getCurrentLocation().then((loc) {
+        setState(() {
+          _currentLocation = loc;
+          _initLocation = loc;
+          _lastLocation = loc;
+        });
       });
     });
   }

@@ -18,6 +18,8 @@ class StreamWatchPage extends StatefulWidget {
 
 class _StreamWatchPageState extends State<StreamWatchPage> {
   late VideoPlayerController _controller;
+  bool _isLive = true;
+  int _delayInSeconds = 0;
 
   @override
   void initState() {
@@ -28,12 +30,27 @@ class _StreamWatchPageState extends State<StreamWatchPage> {
         setState(() {});
         _controller.play();
       });
+    _controller.addListener(_updatePlaybackStatus);
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _updatePlaybackStatus() {
+    final isLiveNow = _controller.value.position.inSeconds >=
+        _controller.value.duration.inSeconds - 2; // 2 seconds buffer
+    final delay = _controller.value.duration.inSeconds -
+        _controller.value.position.inSeconds;
+
+    if (_isLive != isLiveNow || _delayInSeconds != delay) {
+      setState(() {
+        _isLive = isLiveNow;
+        _delayInSeconds = delay;
+      });
+    }
   }
 
   void _jumpToLive() {
@@ -135,7 +152,7 @@ class _StreamWatchPageState extends State<StreamWatchPage> {
           Align(
             alignment: Alignment.topRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 5, top: 10),
+              padding: const EdgeInsets.only(right: 10, top: 10),
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -153,6 +170,43 @@ class _StreamWatchPageState extends State<StreamWatchPage> {
                     const SizedBox(width: 3),
                     Text(
                       widget.stream.userDto.username,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10, top: 10),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: _isLive ? Colors.green : Colors.red,
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      _isLive
+                          ? "Watching Live"
+                          : 'Delayed by $_delayInSeconds seconds',
                       style: Theme.of(context)
                           .textTheme
                           .titleSmall
