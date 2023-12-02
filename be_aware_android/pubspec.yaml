@@ -17,6 +17,7 @@ dependencies:
   geolocator: ^10.1.0
   get_it: ^7.6.4
   go_router: ^11.1.4
+  haishin_kit: ^0.11.3
   http: ^1.1.0
   http_parser: ^4.0.2
   injectable: ^2.3.2

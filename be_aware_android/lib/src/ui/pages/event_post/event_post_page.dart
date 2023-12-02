@@ -4,6 +4,7 @@ import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/generated_code/dependency_injection/injectable.dart';
 import 'package:be_aware_android/src/exceptions/server_exception.dart';
 import 'package:be_aware_android/src/services/events_service.dart';
+import 'package:be_aware_android/src/services/streams_service.dart';
 import 'package:be_aware_android/src/ui/common/dialogs/loading_dialog.dart';
 import 'package:be_aware_android/src/ui/pages/event_post/widget/event_selectable_tag.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import 'package:toastification/toastification.dart';
 class EventPostPage extends StatefulWidget {
   EventPostPage({super.key});
   final EventsService eventsService = getIt();
+  final StreamsService streamsService = getIt();
 
   @override
   State<EventPostPage> createState() => _EventPostPageState();
@@ -41,7 +43,7 @@ class _EventPostPageState extends State<EventPostPage> {
         ToastificationType.warning,
       );
     } else {
-      _showLoadingDialog();
+      _showLoadingDialog("Publishing...");
       Location? currentLocation = await _getCurrentLocation();
       if (currentLocation != null) {
         EventForm eventForm = EventForm(
@@ -69,6 +71,32 @@ class _EventPostPageState extends State<EventPostPage> {
     }
   }
 
+  Future<void> _goLive() async {
+    _showLoadingDialog("Starting stream...");
+    Location? currentLocation = await _getCurrentLocation();
+    if (currentLocation != null) {
+      try {
+        StreamPublishDto streamPublish = await widget.streamsService.postStream(
+          StreamForm(
+            location: Location(
+                latitude: currentLocation.latitude,
+                longitude: currentLocation.longitude),
+          ),
+        );
+        _popLoadingDialog();
+        context.push("/stream/post", extra: streamPublish);
+      } on ServerException catch (_) {
+        _popLoadingDialog();
+        _showToast(
+          "An error occured",
+          ToastificationType.error,
+        );
+      }
+    } else {
+      _popLoadingDialog();
+    }
+  }
+
   Future<Location?> _getCurrentLocation() async {
     if (await Permission.location.isGranted) {
       try {
@@ -89,12 +117,12 @@ class _EventPostPageState extends State<EventPostPage> {
     return null;
   }
 
-  void _showLoadingDialog() {
+  void _showLoadingDialog(String text) {
     showDialog(
         barrierDismissible: false,
         context: context,
         builder: (_) {
-          return const LoadingDialog(message: "Publishing...");
+          return LoadingDialog(message: text);
         });
   }
 
@@ -197,9 +225,7 @@ class _EventPostPageState extends State<EventPostPage> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                               ),
-                              onPressed: () {
-                                context.push("/event/takephoto/123");
-                              },
+                              onPressed: _goLive,
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [

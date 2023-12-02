@@ -4,6 +4,7 @@ import 'package:be_aware_android/src/services/api.dart';
 import 'package:chopper/chopper.dart';
 import 'package:injectable/injectable.dart';
 import 'package:latlong2/latlong.dart';
+import 'dart:developer' as developer;
 
 @injectable
 class StreamsService {
@@ -25,6 +26,17 @@ class StreamsService {
       rectangleEndLongitude: rectangleEnd.longitude,
     );
     if (response.statusCode == 200) {
+      return response.body!;
+    } else {
+      throw ServerException(status: response.statusCode);
+    }
+  }
+
+  Future<StreamPublishDto> postStream(StreamForm streamForm) async {
+    Response<StreamPublishDto> response =
+        await _api.authClient.streamsPost(body: streamForm);
+    if (response.statusCode == 201) {
+      developer.log(response.body!.toJson().toString(), name: 'Stream Service');
       return response.body!;
     } else {
       throw ServerException(status: response.statusCode);

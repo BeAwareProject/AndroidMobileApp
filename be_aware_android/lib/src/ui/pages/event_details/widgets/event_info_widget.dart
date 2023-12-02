@@ -14,38 +14,9 @@ class EventInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color.fromARGB(255, 33, 33, 33),
-      height: 230,
+      height: 250,
       child: Column(
         children: [
-          /*Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                child: Container(
-                  constraints: const BoxConstraints(
-                    maxWidth: 320,
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Text(
-                    event.description,
-                    overflow: TextOverflow.ellipsis, // Add this line
-                    maxLines: 1,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(color: Colors.black),
-                  ),
-                ),
-              ),
-            ],
-          ),*/
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
