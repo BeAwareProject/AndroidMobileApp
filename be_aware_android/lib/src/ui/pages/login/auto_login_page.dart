@@ -6,6 +6,7 @@ import 'package:be_aware_android/generated_code/dependency_injection/injectable.
 import 'package:be_aware_android/src/exceptions/server_exception.dart';
 import 'package:be_aware_android/src/exceptions/unauthorized_exception.dart';
 import 'package:be_aware_android/src/services/auth_service.dart';
+import 'package:be_aware_android/src/ui/common/exceptions/offline_exception_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,8 +46,18 @@ class _AutoLoginPageState extends State<AutoLoginPage> {
     }
   }
 
+  Future<void> _retry() async {
+    setState(() {
+      _isInternetConnectionError = false;
+      _isServerException = false;
+    });
+    await _autoLogin();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator());
+    return _isInternetConnectionError
+        ? OfflineExceptionWidget(onRetry: _retry)
+        : const Center(child: CircularProgressIndicator());
   }
 }

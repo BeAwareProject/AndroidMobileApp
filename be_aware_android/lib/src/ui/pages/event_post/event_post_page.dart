@@ -1,23 +1,25 @@
 // ignore_for_file: use_build_context_synchronously
-
+import 'dart:io';
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/generated_code/dependency_injection/injectable.dart';
 import 'package:be_aware_android/src/exceptions/server_exception.dart';
 import 'package:be_aware_android/src/services/events_service.dart';
+import 'package:be_aware_android/src/services/localization_service.dart';
 import 'package:be_aware_android/src/services/streams_service.dart';
 import 'package:be_aware_android/src/ui/common/dialogs/loading_dialog.dart';
+import 'package:be_aware_android/src/ui/common/exceptions/offline_exception_widget.dart';
 import 'package:be_aware_android/src/ui/pages/event_post/widget/event_selectable_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:toastification/toastification.dart';
 
 class EventPostPage extends StatefulWidget {
   EventPostPage({super.key});
   final EventsService eventsService = getIt();
   final StreamsService streamsService = getIt();
+  final LocalizationService locationService = getIt();
 
   @override
   State<EventPostPage> createState() => _EventPostPageState();
@@ -28,7 +30,7 @@ class _EventPostPageState extends State<EventPostPage> {
   final List<bool> _isSelectedDeadly = [true, false];
   PageTagDto? _tags;
   final Set<int> _selectedTagsIds = {};
-  bool _serverException = false;
+  bool _offlineException = false;
 
   @override
   void initState() {
@@ -44,77 +46,78 @@ class _EventPostPageState extends State<EventPostPage> {
       );
     } else {
       _showLoadingDialog("Publishing...");
-      Location? currentLocation = await _getCurrentLocation();
-      if (currentLocation != null) {
+      try {
+        LatLng currentLocation =
+            await widget.locationService.getCurrentLocation();
         EventForm eventForm = EventForm(
-          location: currentLocation,
-          description: "Bomba w śmietniku",
+          location: Location(
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          ),
+          description: "Some example title",
           deadly: _isSelectedDeadly[1],
           casualties:
               _isSelectedCasualties[2] ? null : _isSelectedCasualties[1],
           tagIds: _selectedTagsIds.toList(),
         );
-        try {
-          EventDto addedEvent = await widget.eventsService.postEvent(eventForm);
-          _popLoadingDialog();
-          context.push("/event/takephoto/${addedEvent.id}");
-        } on ServerException catch (_) {
-          _popLoadingDialog();
-          _showToast(
-            "An error occured",
-            ToastificationType.error,
-          );
-        }
-      } else {
+        EventDto addedEvent = await widget.eventsService.postEvent(eventForm);
         _popLoadingDialog();
-      }
-    }
-  }
-
-  Future<void> _goLive() async {
-    _showLoadingDialog("Starting stream...");
-    Location? currentLocation = await _getCurrentLocation();
-    if (currentLocation != null) {
-      try {
-        StreamPublishDto streamPublish = await widget.streamsService.postStream(
-          StreamForm(
-            location: Location(
-                latitude: currentLocation.latitude,
-                longitude: currentLocation.longitude),
-          ),
+        context.push("/event/takephoto/${addedEvent.id}");
+      } on LocationServiceDisabledException {
+        _popLoadingDialog();
+        _showToast(
+          "Location disabled",
+          ToastificationType.error,
         );
+      } on SocketException {
         _popLoadingDialog();
-        context.push("/stream/post", extra: streamPublish);
-      } on ServerException catch (_) {
+        _showToast(
+          "You are offline",
+          ToastificationType.error,
+        );
+      } on ServerException {
         _popLoadingDialog();
         _showToast(
           "An error occured",
           ToastificationType.error,
         );
       }
-    } else {
-      _popLoadingDialog();
     }
   }
 
-  Future<Location?> _getCurrentLocation() async {
-    if (await Permission.location.isGranted) {
-      try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium,
-        );
-        return Location(
-          latitude: position.latitude,
-          longitude: position.longitude,
-        );
-      } catch (e) {
-        _showToast("Location cannot be determined", ToastificationType.error);
-      }
-    } else {
+  Future<void> _goLive() async {
+    _showLoadingDialog("Starting stream...");
+    try {
+      LatLng currentLocation =
+          await widget.locationService.getCurrentLocation();
+      StreamPublishDto streamPublish = await widget.streamsService.postStream(
+        StreamForm(
+          location: Location(
+              latitude: currentLocation.latitude,
+              longitude: currentLocation.longitude),
+        ),
+      );
+      _popLoadingDialog();
+      context.push("/stream/post", extra: streamPublish);
+    } on SocketException {
+      _popLoadingDialog();
       _showToast(
-          "Localization permission not granted", ToastificationType.error);
+        "You are offline",
+        ToastificationType.error,
+      );
+    } on LocationServiceDisabledException {
+      _popLoadingDialog();
+      _showToast(
+        "Location disabled",
+        ToastificationType.error,
+      );
+    } on ServerException {
+      _popLoadingDialog();
+      _showToast(
+        "An error occured",
+        ToastificationType.error,
+      );
     }
-    return null;
   }
 
   void _showLoadingDialog(String text) {
@@ -131,14 +134,19 @@ class _EventPostPageState extends State<EventPostPage> {
   }
 
   Future<void> _loadTags() async {
+    if (_offlineException) {
+      setState(() {
+        _offlineException = false;
+      });
+    }
     try {
       PageTagDto tags = await widget.eventsService.getAllTags();
       setState(() {
         _tags = tags;
       });
-    } on ServerException catch (_) {
+    } on SocketException {
       setState(() {
-        _serverException = true;
+        _offlineException = true;
       });
     }
   }
@@ -205,8 +213,8 @@ class _EventPostPageState extends State<EventPostPage> {
       appBar: AppBar(
         title: const Text("New Event"),
       ),
-      body: _serverException
-          ? const Center(child: Text("Error occured"))
+      body: _offlineException
+          ? OfflineExceptionWidget(onRetry: _loadTags)
           : _tags == null
               ? const Center(child: CircularProgressIndicator())
               : Stack(

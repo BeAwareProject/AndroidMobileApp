@@ -1,8 +1,5 @@
-import 'dart:async';
-
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:video_player/video_player.dart';
 
 class StreamWatchPage extends StatefulWidget {
@@ -41,7 +38,7 @@ class _StreamWatchPageState extends State<StreamWatchPage> {
 
   void _updatePlaybackStatus() {
     final isLiveNow = _controller.value.position.inSeconds >=
-        _controller.value.duration.inSeconds - 2; // 2 seconds buffer
+        _controller.value.duration.inSeconds - 2;
     final delay = _controller.value.duration.inSeconds -
         _controller.value.position.inSeconds;
 
@@ -57,6 +54,16 @@ class _StreamWatchPageState extends State<StreamWatchPage> {
     if (_controller.value.isInitialized) {
       _controller.seekTo(_controller.value.duration);
     }
+  }
+
+  void _stopOrRun() {
+    setState(() {
+      if (_controller.value.isPlaying) {
+        _controller.pause();
+      } else {
+        _controller.play();
+      }
+    });
   }
 
   void _seekBackward() {
@@ -105,15 +112,7 @@ class _StreamWatchPageState extends State<StreamWatchPage> {
                   ),
                   const SizedBox(width: 10),
                   FloatingActionButton(
-                    onPressed: () {
-                      setState(() {
-                        if (_controller.value.isPlaying) {
-                          _controller.pause();
-                        } else {
-                          _controller.play();
-                        }
-                      });
-                    },
+                    onPressed: _stopOrRun,
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                     shape: const CircleBorder(

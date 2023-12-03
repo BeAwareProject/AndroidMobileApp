@@ -36,7 +36,7 @@ class StreamsService {
     Response<StreamPublishDto> response =
         await _api.authClient.streamsPost(body: streamForm);
     if (response.statusCode == 201) {
-      developer.log(response.body!.toJson().toString(), name: 'Stream Service');
+      developer.log(response.body!.toJson().toString(), name: 'StreamsService');
       return response.body!;
     } else {
       throw ServerException(status: response.statusCode);

@@ -1,0 +1,1 @@
+class LocationServiceNoPermissionException implements Exception {}

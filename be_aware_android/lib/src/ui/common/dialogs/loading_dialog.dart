@@ -8,7 +8,7 @@ class LoadingDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black,
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

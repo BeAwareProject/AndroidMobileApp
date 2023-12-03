@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:be_aware_android/generated_code/api_spec/api_spec.swagger.dart';
 import 'package:be_aware_android/generated_code/dependency_injection/injectable.dart';
-import 'package:be_aware_android/src/models/live.dart';
 import 'package:be_aware_android/src/services/events_service.dart';
+import 'package:be_aware_android/src/services/localization_service.dart';
 import 'package:be_aware_android/src/services/streams_service.dart';
+import 'package:be_aware_android/src/ui/common/exceptions/location_disabled_exception_widget.dart';
+import 'package:be_aware_android/src/ui/common/exceptions/offline_exception_widget.dart';
 import 'package:be_aware_android/src/ui/common/navigations/settings_navigation_drawer.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/current_location_marker.dart';
 import 'package:be_aware_android/src/ui/pages/map/pointers/event_marker.dart';
@@ -17,7 +20,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -31,13 +33,18 @@ class _MapPageState extends State<MapPage> {
   final MapController _mapController = MapController();
   final EventsService _eventsService = getIt();
   final StreamsService _streamsService = getIt();
+  final LocalizationService _localizationService = getIt();
 
   late Timer _locationTimer;
+
   LatLng? _currentLocation;
   LatLng? _initLocation;
   LatLng? _lastLocation;
 
   bool _showSmallMarkers = false;
+  bool _locationDisabledError = false;
+  bool _offlineError = false;
+
   List<EventDto> _events = [];
   List<StreamDto> _streams = [];
   StreamSubscription<void>? _lastMapItemsUpdateAction;
@@ -45,21 +52,21 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-    _checkLocalizationPermission().then((_) {
-      _locationTimer = Timer.periodic(
-        const Duration(seconds: 5),
-        (_) {
-          _updateLocation();
-        },
-      );
-      _getCurrentLocation().then((loc) {
-        setState(() {
-          _currentLocation = loc;
-          _initLocation = loc;
-          _lastLocation = loc;
-        });
-      });
-    });
+    initMap();
+  }
+
+  Future<void> initMap() async {
+    try {
+      await _updateLocation();
+    } on LocationServiceDisabledException {}
+
+    _locationTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) {
+        _updateLocation();
+      },
+    );
+    _updatePointers();
   }
 
   @override
@@ -69,29 +76,31 @@ class _MapPageState extends State<MapPage> {
     _mapController.dispose();
   }
 
-  Future<void> _checkLocalizationPermission() async {
-    if (!(await Permission.location.isGranted)) {
-      await Permission.location.request();
-    }
-  }
-
-  Future<LatLng?> _getCurrentLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-      );
-      return LatLng(position.latitude, position.longitude);
-    } catch (e) {
-      return null;
-    }
-  }
-
   Future<void> _updateLocation() async {
-    var location = await _getCurrentLocation();
-    setState(() {
-      _currentLocation = location;
-      if (location != null) _lastLocation = location;
-    });
+    try {
+      var location = await _localizationService.getCurrentLocation();
+      if (location != null) {
+        setState(() {
+          _currentLocation = location;
+          _lastLocation = location;
+          _initLocation ??= location;
+        });
+      } else {
+        setState(() {
+          _currentLocation = null;
+        });
+      }
+    } on LocationServiceDisabledException {
+      if (_initLocation == null) {
+        setState(() {
+          _locationDisabledError = true;
+        });
+      } else if (_lastLocation != null) {
+        setState(() {
+          _currentLocation = null;
+        });
+      }
+    }
   }
 
   void _goToCurrentLocation() {
@@ -128,14 +137,20 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _getAndSetNewEventsForMapBounds() async {
-    LatLngBounds visibleMapBounds = _mapController.camera.visibleBounds;
-    PageEventDto pageEvent = await _eventsService.getEvents(
-      visibleMapBounds.northWest,
-      visibleMapBounds.southEast,
-    );
-    setState(() {
-      _events = pageEvent.content != null ? pageEvent.content! : [];
-    });
+    try {
+      LatLngBounds visibleMapBounds = _mapController.camera.visibleBounds;
+      PageEventDto pageEvent = await _eventsService.getEvents(
+        visibleMapBounds.northWest,
+        visibleMapBounds.southEast,
+      );
+      setState(() {
+        _events = pageEvent.content != null ? pageEvent.content! : [];
+      });
+    } on SocketException {
+      setState(() {
+        _offlineError = true;
+      });
+    }
   }
 
   Future<void> _getAndSetNewStreamsForMapBounds() async {
@@ -158,6 +173,15 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+  Future<void> _retry() async {
+    setState(() {
+      _locationDisabledError = false;
+      _offlineError = false;
+    });
+    await _updateLocation();
+    _updatePointers();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,102 +189,108 @@ class _MapPageState extends State<MapPage> {
         title: const Text('BeAware'),
       ),
       drawer: const SettingsNavigationDrawer(),
-      body: _initLocation == null
-          ? const Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                FlutterMap(
-                  key: _mapKey,
-                  mapController: _mapController,
-                  options: MapOptions(
-                    initialCenter: _initLocation!,
-                    initialZoom: 14,
-                    onPositionChanged: _handleMapPositionChange,
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    ),
-                    _streams.isNotEmpty
-                        ? MarkerLayer(
-                            markers: _streams
-                                .map(
-                                  (stream) => _showSmallMarkers
-                                      ? StreamMarkerSmall(stream: stream)
-                                      : StreamMarker(stream: stream),
-                                )
-                                .toList(),
-                          )
-                        : const SizedBox(),
-                    _events.isNotEmpty
-                        ? MarkerLayer(
-                            markers: _events
-                                .map(
-                                  (event) => _showSmallMarkers
-                                      ? EventMarkerSmall(event: event)
-                                      : EventMarker(event: event),
-                                )
-                                .toList(),
-                          )
-                        : const SizedBox(),
-                    _currentLocation != null
-                        ? MarkerLayer(
-                            markers: [
-                              CurrentLocationMarker(
-                                position: _currentLocation!,
-                              ),
-                            ],
-                          )
-                        : const SizedBox(),
-                    _currentLocation == null && _lastLocation != null
-                        ? MarkerLayer(
-                            markers: [
-                              CurrentLocationMarker(
-                                position: _lastLocation!,
-                                outDated: true,
-                              ),
-                            ],
-                          )
-                        : const SizedBox(),
-                  ],
-                ),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: SearchContainer(
-                    onTapLayers: _showLayersBottomSheet,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10, right: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
+      body: _offlineError
+          ? OfflineExceptionWidget(onRetry: _retry)
+          : _locationDisabledError
+              ? LocationDisabledExceptionWidget(onRetry: _retry)
+              : _initLocation == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : Stack(
                       children: [
-                        FloatingActionButton(
-                          onPressed: _goToCurrentLocation,
-                          child: const Icon(Icons.my_location_outlined),
+                        FlutterMap(
+                          key: _mapKey,
+                          mapController: _mapController,
+                          options: MapOptions(
+                            initialCenter: _initLocation!,
+                            initialZoom: 14,
+                            onPositionChanged: _handleMapPositionChange,
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate:
+                                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            ),
+                            _streams.isNotEmpty
+                                ? MarkerLayer(
+                                    markers: _streams
+                                        .map(
+                                          (stream) => _showSmallMarkers
+                                              ? StreamMarkerSmall(
+                                                  stream: stream)
+                                              : StreamMarker(stream: stream),
+                                        )
+                                        .toList(),
+                                  )
+                                : const SizedBox(),
+                            _events.isNotEmpty
+                                ? MarkerLayer(
+                                    markers: _events
+                                        .map(
+                                          (event) => _showSmallMarkers
+                                              ? EventMarkerSmall(event: event)
+                                              : EventMarker(event: event),
+                                        )
+                                        .toList(),
+                                  )
+                                : const SizedBox(),
+                            _currentLocation != null
+                                ? MarkerLayer(
+                                    markers: [
+                                      CurrentLocationMarker(
+                                        position: _currentLocation!,
+                                      ),
+                                    ],
+                                  )
+                                : const SizedBox(),
+                            _currentLocation == null && _lastLocation != null
+                                ? MarkerLayer(
+                                    markers: [
+                                      CurrentLocationMarker(
+                                        position: _lastLocation!,
+                                        outDated: true,
+                                      ),
+                                    ],
+                                  )
+                                : const SizedBox(),
+                          ],
                         ),
-                        const SizedBox(height: 10),
-                        FloatingActionButton(
-                          backgroundColor:
-                              const Color.fromARGB(255, 195, 65, 25),
-                          foregroundColor: Colors.white,
-                          onPressed: () {
-                            context.push("/event/post");
-                          },
-                          child: const Icon(
-                            Icons.report_outlined,
-                            size: 28,
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: SearchContainer(
+                            onTapLayers: _showLayersBottomSheet,
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: 10, right: 10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                FloatingActionButton(
+                                  onPressed: _goToCurrentLocation,
+                                  child: const Icon(Icons.my_location_outlined),
+                                ),
+                                const SizedBox(height: 10),
+                                FloatingActionButton(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 195, 65, 25),
+                                  foregroundColor: Colors.white,
+                                  onPressed: () {
+                                    context.push("/event/post");
+                                  },
+                                  child: const Icon(
+                                    Icons.report_outlined,
+                                    size: 28,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ],
-            ),
     );
   }
 }
